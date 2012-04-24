@@ -215,7 +215,8 @@ class jsonSqlMysql extends jsonSqlBase {
 		foreach($types as $i=>$type) {
 			$stmt->bindValue($i+1, $type[0],$type[1]);
 		}
-	//	echo $sql.'<hr>';
+		if($this->debug)
+        	echo $sql.'<hr>';
 		return $stmt->execute();
 	}
 
@@ -290,7 +291,8 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 
 		$sql.=') VALUES ('.$values.');';
-		//echo $sql.'<hr>';
+		if($this->debug)
+        	echo $sql.'<hr>';
 		$stmt=$this->dbh->prepare($sql);
 
 		foreach($types as $i=>$type) {
@@ -399,7 +401,8 @@ class jsonSqlMysql extends jsonSqlBase {
 		//if($values) {
 
 		//}
-		echo $sql."<br><br>\n\n";
+		if($this->debug)
+        	echo $sql.'<hr>';
 		$stmt->execute();
 		//var_dump($stmt);
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -414,6 +417,8 @@ class jsonSqlMysql extends jsonSqlBase {
 		$sql.=' WHERE '.$where;
 	//	echo $sql.'<br/><br/>';
 		$stmt=$this->dbh->prepare($sql);
+		if($this->debug)
+        	echo $sql.'<hr>';
 		return $stmt->execute();
 	}
 

@@ -21,6 +21,11 @@ abstract class jsonSqlBase {
 	 * @var array
 	 */
 	protected $allowed_order;
+    /**
+     *  Debuging aktiv?
+     * @var type boolean
+     */
+    protected $debug;
 	/**
 	 * Preparing everything
 	 * @param string $db_structure
@@ -29,6 +34,10 @@ abstract class jsonSqlBase {
 	public function __construct($db_structure,$db_aliases) {
 		$this->db_structure=json_decode($db_structure);
 		$this->db_aliases=json_decode($db_aliases);
+		$this->debug=false;
+	}
+	public function set_debug($input){
+		$this->debug=$input;
 	}
 	/**
 	 * Creates a new Query from a json_object
