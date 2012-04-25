@@ -321,8 +321,6 @@ abstract class jsonSqlBase {
 				//Value format
 				if($value==='?') {
 					dbg::out('where_params', 0,$where_params);
-					if(!is_array($where_params))
-						throw new sqlException('No where-param',1335281004);
 					$p_key=key($where_params);
 					$value=$where_params[$p_key];
 					unset($where_params[$p_key]);
@@ -521,8 +519,8 @@ abstract class jsonSqlBase {
 		/*echo "<br><br>\n\n";
 		 var_dump($params,$update_params);
 		 echo "<br><br>\n\n";/**/
-		if (!isset($update_params['update']) && !isset($update_params['where']))
-			$update_params = $update_params[key($update_params)];
+		if(!isset($update_params['update']))
+		$update_params=$update_params[key($update_params)];
 		if(!isset($params->update))
 		throw new sqlException('Nothing to update', 1325688162);
 		$update=$this->getInsert($params->update,@$update_params['update']);
