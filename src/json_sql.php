@@ -538,7 +538,7 @@ abstract class jsonSqlBase {
 	 * @param array $update Update-Teil
 	 * @param array $where Where-Teil
 	 */
-	protected abstract function execUpdate($update,$where);
+	protected abstract function execUpdate($update,$where=null);
 	/**
 	 * Creates an delete-query
 	 * @param json_object $params The input-param
@@ -554,7 +554,7 @@ abstract class jsonSqlBase {
 		} else $where=null;
 		return $this->execDelete($params->table, $where);
 	}
-	protected abstract function execDelete($table,$where);
+	protected abstract function execDelete($table,$where=null);
 
 	/**
 	 * Holt die Label-Eigenschaft eines Aliases
