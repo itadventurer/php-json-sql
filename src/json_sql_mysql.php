@@ -217,7 +217,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 		if($this->debug){
         	//echo $sql.'<hr>';
-			$this->firephp->log($sql, 'SQL-Update-Query');
+			$this->firephp->info($sql, 'SQL-Update-Query');
 		}
 		return $stmt->execute();
 	}
@@ -295,7 +295,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		$sql.=') VALUES ('.$values.');';
 		if($this->debug){
         	//echo $sql.'<hr>';
-			$this->firephp->log($sql, 'SQL-Insert-Query');
+			$this->firephp->info($sql, 'SQL-Insert-Query');
 		}
 		$stmt=$this->dbh->prepare($sql);
 
@@ -407,7 +407,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		//}
 		if($this->debug){
         	//echo $sql.'<hr>';
-			$this->firephp->log($sql, 'SQL-Select-Query');
+			$this->firephp->info($sql, 'SQL-Select-Query');
 		}
 		$stmt->execute();
 		//var_dump($stmt);
@@ -425,7 +425,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		$stmt=$this->dbh->prepare($sql);
 		if($this->debug){
         	//echo $sql.'<hr>';
-			$this->firephp->log($sql, 'SQL-Delete-Query');
+			$this->firephp->info($sql, 'SQL-Delete-Query');
 		}
 		return $stmt->execute();
 	}
