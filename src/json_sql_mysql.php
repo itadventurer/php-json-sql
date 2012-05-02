@@ -215,8 +215,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		foreach($types as $i=>$type) {
 			$stmt->bindValue($i+1, $type[0],$type[1]);
 		}
-		if($this->debug)
-        	echo $sql.'<hr>';
+		if($this->debug){
+        	//echo $sql.'<hr>';
+			$this->firephp->log($sql, 'SQL-Update-Query');
+		}
 		return $stmt->execute();
 	}
 
@@ -291,8 +293,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 
 		$sql.=') VALUES ('.$values.');';
-		if($this->debug)
-        	echo $sql.'<hr>';
+		if($this->debug){
+        	//echo $sql.'<hr>';
+			$this->firephp->log($sql, 'SQL-Insert-Query');
+		}
 		$stmt=$this->dbh->prepare($sql);
 
 		foreach($types as $i=>$type) {
@@ -401,8 +405,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		//if($values) {
 
 		//}
-		if($this->debug)
-        	echo $sql.'<hr>';
+		if($this->debug){
+        	//echo $sql.'<hr>';
+			$this->firephp->log($sql, 'SQL-Select-Query');
+		}
 		$stmt->execute();
 		//var_dump($stmt);
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -417,8 +423,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		$sql.=' WHERE '.$where;
 	//	echo $sql.'<br/><br/>';
 		$stmt=$this->dbh->prepare($sql);
-		if($this->debug)
-        	echo $sql.'<hr>';
+		if($this->debug){
+        	//echo $sql.'<hr>';
+			$this->firephp->log($sql, 'SQL-Delete-Query');
+		}
 		return $stmt->execute();
 	}
 
