@@ -47,7 +47,7 @@ abstract class jsonSqlBase {
 	 */
 	public function set_debug($input,$path){
 		$this->debug=$input;
-		if($this->debug=true){
+		if($this->debug){
 			require_once($path);
 			ob_start();
 			$this->firephp = FirePHP::getInstance(true);
