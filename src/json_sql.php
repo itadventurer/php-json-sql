@@ -40,7 +40,7 @@ abstract class jsonSqlBase {
 		$this->db_aliases=json_decode($db_aliases);
 		$this->debug=false;
 	}
-	/*
+	/**
 	 *Enable/disable Debuging(Shows Sql-Query, needs firephp)
 	 * @param bool $input Enable/disable
 	 * @param string $path Path to firephp lib
@@ -73,8 +73,10 @@ abstract class jsonSqlBase {
 		} else {
 			if($this->debug)
 				$this->firephp->group("Exec ".$in->type."-Query");
+				
 			$this->firephp->log($in,"Input-Object");
 			$this->firephp->log($params,"Params");
+			
 			switch($in->type) {
 				case "insert":
 					$ret= $this->insert($in,$params);
@@ -101,11 +103,6 @@ abstract class jsonSqlBase {
 		}
 	}
 	/**
-	 * Executes the query
-	 * @param string $query The query-string
-	 */
-	//protected  abstract function exec($query);
-	/**
 	 * Formatiert einen String anhand eines formates
 	 * @param mixed $string
 	 * @param char $f p:DB-Bezeichner (Tabellennamen, etc.)
@@ -120,14 +117,13 @@ abstract class jsonSqlBase {
 			$f=$f->type;
 		} elseif(is_array($f)) {
 			if($f[0]=='foreign')
-			$f='int';
+				$f='int';
 			else
-			$f=$f[0];
+				$f=$f[0];
 		} elseif(!is_string($f)) {
 			var_dump($string,$f,$param,"<br>");
 			throw new sqlException('Wrong type', 1325077369,$f);
 		}
-
 
 		switch($f) {
 			case 'p':
@@ -143,7 +139,7 @@ abstract class jsonSqlBase {
 				array("\\x00","\\n","\\r","\\\\","\\'","\\\"","\\x1a")
 				,$string);
 				if($param)
-				return '"'.$string.'"';
+					return '"'.$string.'"';
 				return $string;
 				break;
 			case 'float':
@@ -159,7 +155,7 @@ abstract class jsonSqlBase {
 			case 'boolean':
 			case 'b':
 				if($string===true || $string=='true')
-				return 'true';
+					return 'true';
 				return 'false';
 				break;
 			case 'json':
@@ -178,19 +174,12 @@ abstract class jsonSqlBase {
 		$insert=array();
 		foreach($params as $key=>$val) {
 			if($key=='type')
-			continue;
+				continue;
 			if(!isset($this->db_aliases->$key))
-			throw new sqlException('No such alias', 1325435040,$key);
+				throw new sqlException('No such alias', 1325435040,$key);
 			$alias=$this->db_aliases->$key;
 			
-			//var_dump($alias,"<br><br>\n\n");
 			if($val=='?') {
-/*
-			if($value=='?') {
-				$p_key=key($insert_params);
-				$value=$insert_params[$p_key];
-				unset($insert_params[$p_key]);
-			}*/
 				if($insert_params!=null && count($insert_params)>0) {
 					$p_key=key($insert_params);
 					$val=$insert_params[$p_key];
@@ -202,17 +191,13 @@ abstract class jsonSqlBase {
 			
 			if(isset($alias->foreign)) {
 				$value=$this->getForeignId($val,$alias);
-				//echo $value;
 			} else {
 				$value=$val;
 			}
-			
-			//var_dump($alias,"<hr>");
 			if(($value==='--' || $value==='++') && ($this->db_structure->{$alias->table}->{$alias->field}='int' || $this->db_structure->{$alias->table}->{$alias->field}='id'))
-			$insert[$alias->table][$alias->field]=$value;
+				$insert[$alias->table][$alias->field]=$value;
 			else
-			$insert[$alias->table][$alias->field]=$this->format($value,$this->db_structure->{$alias->table}->{$alias->field});
-			//echo $insert[$alias->table][$alias->field].'<br>';
+				$insert[$alias->table][$alias->field]=$this->format($value,$this->db_structure->{$alias->table}->{$alias->field});
 			
 		}
 		return $insert;
@@ -224,7 +209,6 @@ abstract class jsonSqlBase {
 	 */
 	protected function insert($params,$insert_params) {
 		$insert=$this->getInsert($params,$insert_params);
-//var_dump($insert);
 		foreach($insert as $key=>$value) {
 			return intval($this->execInsert($key, $value));
 		}
@@ -252,7 +236,7 @@ abstract class jsonSqlBase {
 		$what=array();
 		$join=array();
 		$new_alias=array();
-			$position=0;
+		$position=0;
 		foreach($pwhat as $val_alias) {
 			$val_obj=false;
 			if(is_object($val_alias)) {
@@ -263,10 +247,11 @@ abstract class jsonSqlBase {
 				//$new_alias[$val]=$val;
 			}
 			if(!isset($this->db_aliases->$val))
-			throw new sqlException('no such db-alias', 1325074427,$val);
+				throw new sqlException('no such db-alias', 1325074427,$val);
+				
 			$alias=$this->db_aliases->$val;
 			if(!isset($what[$alias->table]))
-			$what[$alias->table]=array();
+				$what[$alias->table]=array();
 			if(!in_array($alias->field,$what[$alias->table])) {
 				if($val_obj) {
 					if(!isset($alias->foreign))
@@ -277,18 +262,18 @@ abstract class jsonSqlBase {
 					if(!isset($join[$val_alias->alias])) {
 						$alias->alias=$val_alias->from;
 						if(isset($val_alias->via))
-						$alias->via=$val_alias->via;
+							$alias->via=$val_alias->via;
 						$join[$alias->alias]=$alias;
 						$new_alias[$val_alias->alias]=$val_alias->from;
 					}
 					continue;
 				}
 				if(!isset($alias->foreign)) {
-				$what[$alias->table][]=array('field'=>$alias->field,'alias'=>$val,'position'=>$position);
+					$what[$alias->table][]=array('field'=>$alias->field,'alias'=>$val,'position'=>$position);
 					++$position;
 				}else {
 					if(!isset($what[$alias->foreign->table]))
-					$what[$alias->foreign->table]=array();
+						$what[$alias->foreign->table]=array();
 					if(!in_array($alias->foreign->field,$what[$alias->foreign->table])) {
 						$what[$alias->foreign->table][]=array('field'=>$alias->foreign->field,'alias'=>$val,'position'=>$position);
 						++$position;
@@ -298,7 +283,6 @@ abstract class jsonSqlBase {
 
 			}
 		}
-		//var_dump($what,"<br><br>\n\n");
 		return array($what,$join,$new_alias);
 	}
 	/**
@@ -312,48 +296,45 @@ abstract class jsonSqlBase {
 		$from=array();
 		foreach($pwhere as $val) {
 			$where.=' ';
-//var_dump($val);
 			if(isset($val->field)) {
-
 				$field=$val->field;
 				$op=@$val->op;
 				$value=$val->value;
 				if(!isset($this->db_aliases->$field))
-				throw new sqlException('No such db-alias', 1325075468,$field);
+					throw new sqlException('No such db-alias', 1325075468,$field);
+				
 				$alias=$this->db_aliases->$field;
 				$alias_table=$alias->table;
 				$alias_field=$alias->field;
+				
 				if(!in_array($alias_table,$from))
-				$from[]=$alias_table;
+					$from[]=$alias_table;
 
 				//Operator
 				$op=strtoupper($op);
 				if(isset($alias->foreign)) {
 					if($new_alias==null || !isset($new_alias[$field])){
-					$where.=$alias->foreign->table.'.'.$alias->foreign->field;
+						$where.=$alias->foreign->table.'.'.$alias->foreign->field;
 						$alias_table=$alias->foreign->table;
 						$alias_field=$alias->foreign->field;
 					}else {
-						//var_dump($new_alias);
 						$alias_table=$alias->foreign->table;
 						$alias_field=$alias->foreign->field;
 						$where.=$new_alias[$field].'.'.$alias->foreign->field;
 					}
 				}else {
-				$where.=$alias_table.'.'.$alias_field;
+					$where.=$alias_table.'.'.$alias_field;
 				}
 				$where.=' '.$op.' ';
 
 				//Value format
 				if($value==='?') {
-					dbg::out('where_params', 0,$where_params);
 					if(!is_array($where_params))
 						throw new sqlException('No where params',1335281004);
 					$p_key=key($where_params);
 					$value=$where_params[$p_key];
 					unset($where_params[$p_key]);
 				}
-				//var_dump($alias_field,$value,$this->db_structure->$alias_table->$alias_field,'<br><br>');
 				$value=$this->format($value,$this->db_structure->$alias_table->$alias_field,true);
 				switch($op) {
 					case '=':
@@ -370,13 +351,14 @@ abstract class jsonSqlBase {
 					case 'IS NOT':
 						$value=str_replace('"','',strtoupper($value));
 						$allowed_values=array('TRUE','FALSE','NULL');
+						
 						if(!in_array($value, $allowed_values))
-						throw new sqlException('wrong is-value', 1325077665,$value);
+							throw new sqlException('wrong is-value', 1325077665,$value);
 						$where.=$value;
 						break;
 					case 'BETWEEN':
 						$where.=$this->format($value,$this->db_structure->$alias_table->$alias_field,true)
-						.' AND '.$this->format($value2,$this->db_structure->$alias_table->$alias_field,true);
+							.' AND '.$this->format($value2,$this->db_structure->$alias_table->$alias_field,true);
 						break;
 					case 'LIKE':
 						$where.=$value;
@@ -387,7 +369,7 @@ abstract class jsonSqlBase {
 						$in=0;
 						foreach($val->value as $inval) {
 							if($in!=0)
-						    $where.=', ';
+								$where.=', ';
 							$where.=$this->format($inval,$this->db_structure->$alias_table->$alias_field,true);
 							++$in;
 						}
@@ -396,8 +378,6 @@ abstract class jsonSqlBase {
 					
 				}
 			} else {
-				
-			//var_dump($val);
 				$allowed_ops=array('AND','OR','NOT','(',')');
 				if(!in_array($val->op,$allowed_ops)) {
 					throw new sqlException('wrong op', 1325078411,$val->op);
@@ -444,7 +424,7 @@ abstract class jsonSqlBase {
 
 		$pwhat=$params->what;
 		if(!is_array($pwhat))
-		throw new sqlException('params->what should be an array', 1325074338);
+			throw new sqlException('params->what should be an array', 1325074338);
 
 		//$what
 		$temp=$this->getWhat($pwhat);
@@ -453,7 +433,7 @@ abstract class jsonSqlBase {
 		$new_alias=$temp[2];
 		foreach($what as $key=>$val) {
 			if(!in_array($key,$from))
-			$from[]=$key;
+				$from[]=$key;
 		}
 		//var_dump($join);
 
@@ -469,9 +449,9 @@ abstract class jsonSqlBase {
 			foreach($params->order as $key=>$val) {
 				$val=strtoupper($val);
 				if(!in_array($val, $this->allowed_order))
-				throw new sqlException('No such order', 1325083418,$val);
+					throw new sqlException('No such order', 1325083418,$val);
 				if(!isset($this->db_aliases->$key))
-				throw new sqlException('No such alias', 1325083415,$key);
+					throw new sqlException('No such alias', 1325083415,$key);
   
 				$alias=$this->db_aliases->$key;
 				$alias_table=$alias->table;
@@ -479,8 +459,7 @@ abstract class jsonSqlBase {
 
 				if(isset($alias->foreign)) {
 					if($new_alias==null || !isset($new_alias[$key])){
-					//$where.=$alias->foreign->table.'.'.$alias->foreign->field;
-				$order[]=array('table'=>$alias->foreign->table,'field'=>$alias->foreign->field,'op'=>$val);
+						$order[]=array('table'=>$alias->foreign->table,'field'=>$alias->foreign->field,'op'=>$val);
 					}else {
 						$order[]=array('table'=>$new_alias[$key],'field'=>$alias->foreign->field,'op'=>$val);
 					}
@@ -494,20 +473,21 @@ abstract class jsonSqlBase {
 		if(isset($params->group)) {
 			if(!isset($this->db_aliases->{$params->group}))
 				throw new sqlException('No such alias', 1325083415,$key);
+			
 			$alias=$this->db_aliases->{$params->group};
 
-				$alias_table=$alias->table;
-				$alias_field=$alias->field;
+			$alias_table=$alias->table;
+			$alias_field=$alias->field;
 
-				if(isset($alias->foreign)) {
-					if($new_alias==null || !isset($new_alias[$key])){
-						$group=array('table'=>$alias->foreign->table,'field'=>$alias->foreign->field);
-					}else {
-						$group=array('table'=>$new_alias[$params->group],'field'=>$alias->foreign->field);
-					}
+			if(isset($alias->foreign)) {
+				if($new_alias==null || !isset($new_alias[$key])){
+					$group=array('table'=>$alias->foreign->table,'field'=>$alias->foreign->field);
 				}else {
-					$group=array('table'=>$alias->table,'field'=>$alias->field);
+					$group=array('table'=>$new_alias[$params->group],'field'=>$alias->foreign->field);
 				}
+			}else {
+				$group=array('table'=>$alias->table,'field'=>$alias->field);
+			}
 		}
 		if($return)
 			return array(
@@ -520,15 +500,15 @@ abstract class jsonSqlBase {
 				'join'=>$join
 			);
 		else
-		return $this->execSelect($what, $from,$where,$order,$group,$limit,$join);
+			return $this->execSelect($what, $from,$where,$order,$group,$limit,$join);
 	}
 	private  function count($params,$select_params,$distinct=false) {
 		$params=$this->select($params,$select_params,true);
 		if(!$distinct)
-		$params['what'][key($params['what'])][0]['type']='count';
+			$params['what'][key($params['what'])][0]['type']='count';
 		else
-		$params['what'][key($params['what'])][0]['type']='count_distinct';
-//		var_dump($params);
+			$params['what'][key($params['what'])][0]['type']='count_distinct';
+			
 		return $this->execSelect($params['what'], $params['from'], $params['where'], $params['order'], $params['group'], $params['limit'], $params['join']);
 	}
 	/**
@@ -546,19 +526,15 @@ abstract class jsonSqlBase {
 	 * @param json_object $params The input-param
 	 */
 	protected function update($params,$update_params) {
-//var_dump($update_params);
-		/*echo "<br><br>\n\n";
-		 var_dump($params,$update_params);
-		 echo "<br><br>\n\n";/**/
 		if(!isset($update_params['update']) && !isset($update_params['where']))
-		$update_params=$update_params[key($update_params)];
+			$update_params=$update_params[key($update_params)];
 		if(!isset($params->update))
-		throw new sqlException('Nothing to update', 1325688162);
+			throw new sqlException('Nothing to update', 1325688162);
+			
 		$update=$this->getInsert($params->update,@$update_params['update']);
 		if(count($update)!=1)
-		throw new sqlException('You can update only one table a time!', 1325688732);
+			throw new sqlException('You can update only one table a time!', 1325688732);
 		if(isset($params->where)) {
-			//var_dump($params->where);
 			$temp=$this->getWhere($params->where,@$update_params['where']);
 			$where=$temp[0];
 		} else $where=null;
@@ -576,15 +552,19 @@ abstract class jsonSqlBase {
 	 */
 	protected function delete($params,$delete_params){
 		if(!isset($params->table) || !isset($this->db_structure->{$params->table}))
-		throw new sqlException('No such table', 1325689698,isset($params->table)?$params->table:'no table given');
+			throw new sqlException('No such table', 1325689698,isset($params->table)?$params->table:'no table given');
 
-		//var_dump($delete_params);
 		if(isset($params->where)) {
 			$temp=$this->getWhere($params->where,$delete_params);
 			$where=$temp[0];
 		} else $where=null;
 		return $this->execDelete($params->table, $where);
 	}
+	/**
+	 * Führt eine Delete-Abfrage aus
+	 * @param string $table Tabellenname
+	 * @param object $where optionales Where-Objekt
+	 */
 	protected abstract function execDelete($table,$where=null);
 
 	/**
@@ -605,6 +585,12 @@ abstract class jsonSqlBase {
 	public function existAlias($alias) {
 		return isset($this->db_aliases->$alias);
 	}
+	/**
+	 * Holt den Typ eines Aliases
+	 * @param string $alias_name Alias-Name
+	 * @param bool $foreign Soll der typ des Foreign-fields zurückgegeben werden?
+	 * @return string
+	 */
 	public function getType($alias_name,$foreign=false) {
 		if(isset($this->db_aliases->$alias_name)) {
 			$alias=$this->db_aliases->$alias_name;
@@ -618,6 +604,11 @@ abstract class jsonSqlBase {
 		}
 		return null;
 	}
+	/**
+	 * Holt den Alias des Foreign-Felds
+	 * @param string $alias Alias-Name
+	 * @return object
+	 */
 	public function getAliasForeign($alias){
 		if(isset($this->db_aliases->$alias_name)) {
 			return $this->db_aliases->$alias_name->foreign;

@@ -38,6 +38,10 @@ class jsonSqlMysql extends jsonSqlBase {
 	public function initQueryGetter($query) {
 		$this->queryGetter=$query;
 	}
+	/**
+	 * Gecachte Filter
+	 * @var array
+	 */
 	private $filters;
 	/**
 	 * Holt eine Abfrage aus der Datenbank und führt diese aus
@@ -49,25 +53,22 @@ class jsonSqlMysql extends jsonSqlBase {
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
 			
 		if($this->debug);
-		$this->firephp->group($name);
-		//echo $name;
+			$this->firephp->group($name);
+		
 		if(isset($this->filters[$name])){
 			$filter=$this->filters[$name];
 		} else{
-			//var_dump($this->queryGetter,'<br>');
 			$filter=$this->query($this->queryGetter,array($name));
 			if(!isset($filter[0]))
-			throw new sqlException('No such filter', 1329308645,$name);
+				throw new sqlException('No such filter', 1329308645,$name);
 			$filter=$filter[0]['filter_json'];
 			$this->filters[$name]=$filter;
 		}
-		//var_dump('<hr>',$filter,$name,"\n\n<br><br>");
-		//echo $filter;
 		$params=func_get_args();
 		unset($params[0]);
 		$ret=$this->query(json_decode($filter),$params);
 		if($this->debug)
-		$this->firephp->groupEnd();
+			$this->firephp->groupEnd();
 		return $ret;
 	}
 	/**
@@ -80,31 +81,28 @@ class jsonSqlMysql extends jsonSqlBase {
 	 */
 	public function getExtQueryFromDB($name,$params=null,$additional=null) {
 		if($this->queryGetter===null)
-		throw new SQLException('Query Getter was not initialized yet', 1327325963);
+			throw new SQLException('Query Getter was not initialized yet', 1327325963);
+			
 		if($this->debug);
-		$this->firephp->group($name);
+			$this->firephp->group($name);
 
 		if(isset($this->filters[$name]) && is_object($this->filters[$name])){
 				$filter=clone $this->filters[$name];
 		} else{
 			$filter=$this->query($this->queryGetter,array($name));
-			//$this->filters[$name]=clone $filter;
-			//var_dump($filter);
 
 			if(count($filter)==0)
-			throw new SQLException('No such Filter', 1328652428, $name);
+				throw new SQLException('No such Filter', 1328652428, $name);
 			$filter=json_decode($filter[0]['filter_json']);
 			$this->filters[$name]=clone $filter;
 		}
 
-		//var_dump($filter);
 		if($params==null)
-		$params=array();
+			$params=array();
 		if($additional!=null) {
 			foreach($additional as $key=>$val) {
 				if(!isset($filter->$key)){
-//var_dump($val);
-				$filter->$key=$val;
+					$filter->$key=$val;
 				}else{
 					if(is_object($val) && is_array($filter->$key)){
 							$filter->{$key}[]=$val;
@@ -122,13 +120,10 @@ class jsonSqlMysql extends jsonSqlBase {
 			}
 		}
 	
-//var_dump($filter);exit;
-		//var_dump($filter);
 		$ret= $this->query($filter,$params);
 		$this->firephp->groupEnd();
 		return $ret;
 	}
-
 
 	/**
 	 * returns The PDO::PARAM_*-Type for a Field
@@ -136,17 +131,14 @@ class jsonSqlMysql extends jsonSqlBase {
 	 * @throws sqlException
 	 */
 	protected function getPDOType($table,$field) {
-		//var_dump($this->db_structure->$table,$field,$table);
-		//echo "<br><br>\n\n";
 		$f=$this->db_structure->$table->$field;
-		//var_dump($f);echo '<br>';
 		if(is_object($f)) {
 			$f=$f->type;
 		} elseif(is_array($f)) {
 			if($f[0]=='foreign')
-			$f='int';
+				$f='int';
 			else
-			$f=$f[0];
+				$f=$f[0];
 		} elseif(!is_string($f)) {
 			throw new sqlException('Wrong type', 1325077369,$f);
 		}
@@ -173,6 +165,7 @@ class jsonSqlMysql extends jsonSqlBase {
 			case 'boolean':
 			case 'b':
 				return PDO::PARAM_BOOL;
+				break;
 		}
 		throw new sqlException('Wrong type for query', 1325520117,$f);
 	}
@@ -183,16 +176,13 @@ class jsonSqlMysql extends jsonSqlBase {
 	 */
 	protected function execUpdate($update, $where=null) {
 		$types=array();
-		//echo "uiae";
 		$table=key($update);
 		$sql='UPDATE '.$table.' SET ';
 		$additional='';
 		$i=0;
-		//echo PHP_INT_MAX;
 		foreach($update[$table] as $key=>$val) {
-			//echo $val.'<br>';
 			if($i!=0)
-			$sql.=',';
+				$sql.=',';
 			if($val===99999998)
 				$sql.=' '.$key.'='.$key.'-1 ';
 			elseif($val===99999999) {
@@ -212,21 +202,17 @@ class jsonSqlMysql extends jsonSqlBase {
 				$types[]=array($val, $this->getPDOType($table, $key));
 			}
 			++$i;
-			//echo $key.':'.$val.'<br>';
 		}
 		if($where)
-		$sql.=' WHERE '.$where;
+			$sql.=' WHERE '.$where;
 		$sql.=$additional;
 
-		dbg::out('query',0,$sql);
 		$stmt=$this->dbh->prepare($sql);
 
-		//var_dump($types);
 		foreach($types as $i=>$type) {
 			$stmt->bindValue($i+1, $type[0],$type[1]);
 		}
 		if($this->debug){
-        	//echo $sql.'<hr>';
 			$this->firephp->info($sql, 'SQL-Update-Query');
 		}
 		return $stmt->execute();
@@ -239,8 +225,8 @@ class jsonSqlMysql extends jsonSqlBase {
 	 */
 	protected function getForeignId($value,$alias) {
 		$sql='SELECT id FROM '.$alias->foreign->table.' WHERE '.$alias->foreign->field.'=?';
+		
 		$sth=$this->dbh->prepare($sql);
-		//var_dump($sth,$sql,'<br>');
 		$sth->bindParam(1, $value,$this->getPDOType($alias->foreign->table, $alias->foreign->field));
 		$sth->execute();
 		$result=$sth->fetch();
@@ -263,8 +249,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		$i=0;
 		foreach($porder as $key=>$val) {
 			if($i!=0)
-			$order.=',';
-
+				$order.=',';
 			$order.=' '.$val['table'].'.'.$val['field'].' '.$val['op'];
 			++$i;
 		}
@@ -279,7 +264,6 @@ class jsonSqlMysql extends jsonSqlBase {
 		$values='';
 		$types=array();
 		$i=0;
-//var_dump($fields);
 		foreach($fields as $key=>$val) {
 			if($i!=0) {
 				$sql.=',';
@@ -291,26 +275,20 @@ class jsonSqlMysql extends jsonSqlBase {
 					$val=true;
 				elseif($val==='false')
 					$val=false;
-			//$types[]=array($this->format($val,$this->db_structure->$table->$key), $this->getPDOType($table, $key));
-			//var_dump($this->getPDOType($table, $key));
 			$types[]=array($val, $this->getPDOType($table, $key));
 			++$i;
-			//echo $key.'='.$val.'<br>';
 		}
 
 		$sql.=') VALUES ('.$values.');';
 		if($this->debug){
-        	//echo $sql.'<hr>';
 			$this->firephp->info($sql, 'SQL-Insert-Query');
 		}
 		$stmt=$this->dbh->prepare($sql);
 
 		foreach($types as $i=>$type) {
-			//var_dump($type,'<br>');
 			$stmt->bindValue($i+1, $type[0],$type[1]);
 		}
 		$stmt->execute();
-//echo $this->dbh->lastInsertId();
 
 		return $this->dbh->lastInsertId();
 	}
@@ -325,13 +303,12 @@ class jsonSqlMysql extends jsonSqlBase {
 					$tbl_alias=' AS '.$val->alias.' ';
 					$foreign_table=$val->alias;
 					if(isset($val->via))
-					$val_table=$val->via;
-
+						$val_table=$val->via;
 				}
-if(!isset($val->foreign))
-throw new sqlException('No foreign table for',1335287771,$val);
+				if(!isset($val->foreign))
+					throw new sqlException('No foreign table for',1335287771,$val);
 				$sql.=' LEFT JOIN '.$val->foreign->table.$tbl_alias.
-				'  ON '.$val_table.'.'.$val->field.'='.$foreign_table.'.id';
+					'  ON '.$val_table.'.'.$val->field.'='.$foreign_table.'.id';
 			}
 			return $sql;
 	}
@@ -346,7 +323,6 @@ throw new sqlException('No foreign table for',1335287771,$val);
 		$counter=false;
 		foreach($what as $table=>$val) {
 			foreach($val as $field) {
-				//echo $field['position'];
 				if($field['field']=='__count') {
 					$counter=true;
 					$count_where='';
@@ -373,22 +349,20 @@ throw new sqlException('No foreign table for',1335287771,$val);
 					}
 
 					$csql=' ( SELECT COUNT('.$select.') FROM '.$table . $cjoin . $count_where.' ' .$owhere.' '.$group.') AS '.$field['alias'];
-//exit($csql);
 
 					$ordered_what[$field['position']]=$csql;
 					$limit=1;
 				} elseif($counter==false) {
 					if(isset($field['type']) && $field['type']=='count')
-					$ordered_what[$field['position']]=' COUNT('.$table.'.'.$field['field'].') AS '.$field['alias'];
+						$ordered_what[$field['position']]=' COUNT('.$table.'.'.$field['field'].') AS '.$field['alias'];
 					elseif(isset($field['type']) && $field['type']=='count_distinct')
-					$ordered_what[$field['position']]=' COUNT( DISTINCT '.$table.'.'.$field['field'].') AS '.$field['alias'];
+						$ordered_what[$field['position']]=' COUNT( DISTINCT '.$table.'.'.$field['field'].') AS '.$field['alias'];
 					else
-					$ordered_what[$field['position']]=' '.$table.'.'.$field['field'].' AS '.$field['alias'];
+						$ordered_what[$field['position']]=' '.$table.'.'.$field['field'].' AS '.$field['alias'];
 				}
 			}
 		}
 		
-		//var_dump($ordered_what);
 		ksort($ordered_what);
 		$sql.=implode(',', $ordered_what);
 		unset($ordered_what);
@@ -401,9 +375,6 @@ throw new sqlException('No foreign table for',1335287771,$val);
 			$sql.=' WHERE '.$where;
 		}
 		if($group){
-/*			if(is_array($limit))
-			$sql.=' LIMIT '.intval($limit[0]).','.intval($limit[1]);
-			else*/
 			$sql.=' GROUP BY '.$group['table'].'.'.$group['field'];
 		}
 		if($order) {
@@ -417,18 +388,11 @@ throw new sqlException('No foreign table for',1335287771,$val);
 			else
 			$sql.=' LIMIT '.intval($limit);
 		}
-		//$sql.=' LIMIT 200;';
-		dbg::out('query',0,$sql);
 		$stmt=$this->dbh->prepare($sql);
-		//if($values) {
-
-		//}
 		if($this->debug){
-        	//echo $sql.'<hr>';
 			$this->firephp->info($sql, 'SQL-Select-Query');
 		}
 		$stmt->execute();
-		//var_dump($stmt);
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
 	/**
@@ -439,10 +403,8 @@ throw new sqlException('No foreign table for',1335287771,$val);
 		$sql='DELETE FROM '.$table;
 		if($where)
 		$sql.=' WHERE '.$where;
-	//	echo $sql.'<br/><br/>';
 		$stmt=$this->dbh->prepare($sql);
 		if($this->debug){
-        	//echo $sql.'<hr>';
 			$this->firephp->info($sql, 'SQL-Delete-Query');
 		}
 		return $stmt->execute();
