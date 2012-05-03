@@ -45,9 +45,9 @@ abstract class jsonSqlBase {
 	 * @param bool $input Enable/disable
 	 * @param string $path Path to firephp lib
 	 */
-	public function set_debug($input,$path){
+	public function set_debug($input,$path=null){
 		$this->debug=$input;
-		if($this->debug){
+		if($this->debug && is_file($path)){
 			require_once($path);
 			ob_start();
 			$this->firephp = FirePHP::getInstance(true);
