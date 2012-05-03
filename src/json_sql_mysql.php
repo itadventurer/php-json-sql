@@ -47,6 +47,9 @@ class jsonSqlMysql extends jsonSqlBase {
 	public function getQueryFromDB($name) {
 		if($this->queryGetter===null)
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
+			
+		if($this->debug);
+		$this->firephp->group($name);
 		//echo $name;
 		if(isset($this->filters[$name])){
 			$filter=$this->filters[$name];
@@ -62,7 +65,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		//echo $filter;
 		$params=func_get_args();
 		unset($params[0]);
-		return $this->query(json_decode($filter),$params);
+		$ret=$this->query(json_decode($filter),$params);
+		if($this->debug)
+		$this->firephp->groupEnd();
+		return $ret;
 	}
 	/**
 	 * Führt die (evtl. Erweiterte) Abfrage mit Parametern aus
@@ -75,6 +81,8 @@ class jsonSqlMysql extends jsonSqlBase {
 	public function getExtQueryFromDB($name,$params=null,$additional=null) {
 		if($this->queryGetter===null)
 		throw new SQLException('Query Getter was not initialized yet', 1327325963);
+		if($this->debug);
+		$this->firephp->group($name);
 
 		if(isset($this->filters[$name]) && is_object($this->filters[$name])){
 				$filter=clone $this->filters[$name];
@@ -116,7 +124,9 @@ class jsonSqlMysql extends jsonSqlBase {
 	
 //var_dump($filter);exit;
 		//var_dump($filter);
-		return $this->query($filter,$params);
+		$ret= $this->query($filter,$params);
+		$this->firephp->groupEnd();
+		return $ret;
 	}
 
 
