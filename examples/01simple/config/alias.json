@@ -1,0 +1,6 @@
+{
+	"UserId":			{"table":"users","field":"id"},
+	"UserName":			{"table":"users","field":"name"},
+	"UserPassword":		{"table":"users","field":"password"},
+	"UserEmail":		{"table":"users","field":"email"}
+}
