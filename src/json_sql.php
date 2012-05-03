@@ -81,6 +81,9 @@ abstract class jsonSqlBase {
 				case "count":
 					return $this->count($in,$params);
 					break;
+				case "count_distinct":
+					return $this->count($in,$params,true);
+					break;
 				case "update":
 					return $this->update($in,$params);
 					break;
@@ -259,6 +262,8 @@ abstract class jsonSqlBase {
 			$what[$alias->table]=array();
 			if(!in_array($alias->field,$what[$alias->table])) {
 				if($val_obj) {
+					if(!isset($alias->foreign))
+						throw new sqlException('No foreign table for',1335287770,$val);
 					$what[$val_alias->from][]=array('field'=>$alias->foreign->field,'alias'=>$val,'position'=>$position);
 					++$position;
 					
@@ -335,6 +340,8 @@ abstract class jsonSqlBase {
 				//Value format
 				if($value==='?') {
 					dbg::out('where_params', 0,$where_params);
+					if(!is_array($where_params))
+						throw new sqlException('No where params',1335281004);
 					$p_key=key($where_params);
 					$value=$where_params[$p_key];
 					unset($where_params[$p_key]);
@@ -508,9 +515,12 @@ abstract class jsonSqlBase {
 		else
 		return $this->execSelect($what, $from,$where,$order,$group,$limit,$join);
 	}
-	private  function count($params,$select_params) {
+	private  function count($params,$select_params,$distinct=false) {
 		$params=$this->select($params,$select_params,true);
+		if(!$distinct)
 		$params['what'][key($params['what'])][0]['type']='count';
+		else
+		$params['what'][key($params['what'])][0]['type']='count_distinct';
 //		var_dump($params);
 		return $this->execSelect($params['what'], $params['from'], $params['where'], $params['order'], $params['group'], $params['limit'], $params['join']);
 	}
@@ -533,7 +543,7 @@ abstract class jsonSqlBase {
 		/*echo "<br><br>\n\n";
 		 var_dump($params,$update_params);
 		 echo "<br><br>\n\n";/**/
-		if(!isset($update_params['update']))
+		if(!isset($update_params['update']) && !isset($update_params['where']))
 		$update_params=$update_params[key($update_params)];
 		if(!isset($params->update))
 		throw new sqlException('Nothing to update', 1325688162);

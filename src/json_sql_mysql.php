@@ -76,8 +76,8 @@ class jsonSqlMysql extends jsonSqlBase {
 		if($this->queryGetter===null)
 		throw new SQLException('Query Getter was not initialized yet', 1327325963);
 
-		if(isset($this->filters[$name])){
-			$filter=clone $this->filters[$name];
+		if(isset($this->filters[$name]) && is_object($this->filters[$name])){
+				$filter=clone $this->filters[$name];
 		} else{
 			$filter=$this->query($this->queryGetter,array($name));
 			//$this->filters[$name]=clone $filter;
@@ -277,14 +277,10 @@ class jsonSqlMysql extends jsonSqlBase {
 			}
 			$sql.=$key;
 			$values.='?';
-				switch ($val) {
-				    case 'true':
-				        $val=true;
-				        break;
-				    case 'false':
-				        $val=false;
-				        break;
-				}
+				if($val==='true')
+					$val=true;
+				elseif($val==='false')
+					$val=false;
 			//$types[]=array($this->format($val,$this->db_structure->$table->$key), $this->getPDOType($table, $key));
 			//var_dump($this->getPDOType($table, $key));
 			$types[]=array($val, $this->getPDOType($table, $key));
@@ -322,6 +318,8 @@ class jsonSqlMysql extends jsonSqlBase {
 					$val_table=$val->via;
 
 				}
+if(!isset($val->foreign))
+throw new sqlException('No foreign table for',1335287771,$val);
 				$sql.=' LEFT JOIN '.$val->foreign->table.$tbl_alias.
 				'  ON '.$val_table.'.'.$val->field.'='.$foreign_table.'.id';
 			}
@@ -342,9 +340,17 @@ class jsonSqlMysql extends jsonSqlBase {
 				if($field['field']=='__count') {
 					$counter=true;
 					$count_where='';
-					if(isset($this->db_aliases->{$field['alias']}) && isset($this->db_aliases->{$field['alias']}->where)){
-						$where_object=$this->db_aliases->{$field['alias']}->where;
-						$count_where=' WHERE '.$where_object->field.$where_object->op.'"'.$where_object->value.'" ';
+					$group='';
+					$select='*';
+					if(isset($this->db_aliases->{$field['alias']})){
+						if(isset($this->db_aliases->{$field['alias']}->where)){
+							$where_object=$this->db_aliases->{$field['alias']}->where;
+							$count_where=' WHERE '.$where_object->field.$where_object->op.'"'.$where_object->value.'" ';
+						}
+						if(isset($this->db_aliases->{$field['alias']}->group))
+							$group=' GROUP BY '.$this->db_aliases->{$field['alias']}->group;
+						if(isset($this->db_aliases->{$field['alias']}->distinct))
+							$select=' DISTINCT '.$this->db_aliases->{$field['alias']}->distinct;
 					}
 					$owhere='';
 					if($where && empty($count_where)) 
@@ -356,7 +362,7 @@ class jsonSqlMysql extends jsonSqlBase {
 						$cjoin=$this->getJoinSelect($join);
 					}
 
-					$csql=' ( SELECT COUNT(*) FROM '.$table . $cjoin . $count_where.' ' .$owhere.') AS '.$field['alias'];
+					$csql=' ( SELECT COUNT('.$select.') FROM '.$table . $cjoin . $count_where.' ' .$owhere.' '.$group.') AS '.$field['alias'];
 //exit($csql);
 
 					$ordered_what[$field['position']]=$csql;
@@ -364,6 +370,8 @@ class jsonSqlMysql extends jsonSqlBase {
 				} elseif($counter==false) {
 					if(isset($field['type']) && $field['type']=='count')
 					$ordered_what[$field['position']]=' COUNT('.$table.'.'.$field['field'].') AS '.$field['alias'];
+					elseif(isset($field['type']) && $field['type']=='count_distinct')
+					$ordered_what[$field['position']]=' COUNT( DISTINCT '.$table.'.'.$field['field'].') AS '.$field['alias'];
 					else
 					$ordered_what[$field['position']]=' '.$table.'.'.$field['field'].' AS '.$field['alias'];
 				}
