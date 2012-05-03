@@ -71,12 +71,11 @@ abstract class jsonSqlBase {
 				throw new sqlException("Syntax Error",1324225145);
 			}
 		} else {
-			if($this->debug)
+			if($this->debug){
 				$this->firephp->group("Exec ".$in->type."-Query");
-				
-			$this->firephp->log($in,"Input-Object");
-			$this->firephp->log($params,"Params");
-			
+				$this->firephp->log($in,"Input-Object");
+				$this->firephp->log($params,"Params");
+			}
 			switch($in->type) {
 				case "insert":
 					$ret= $this->insert($in,$params);
@@ -98,7 +97,7 @@ abstract class jsonSqlBase {
 					break;
 			}
 			if($this->debug)
-			$this->firephp->groupEnd();
+				$this->firephp->groupEnd();
 			return $ret;
 		}
 	}
