@@ -1,4 +1,8 @@
 <?php
+/**
+ * Installationsklasse
+ * @package php-json-sql
+ */
 class jsonSqlInstaller{
 	/**
 	 * The PDO-Database-Class
