@@ -35,7 +35,6 @@ class jsonSqlInstaller{
 				case "string":
 					$sql_type=' VARCHAR('.intval($type[1]).')';
 					break;
-				case "pointer":
 				case 'foreign':
 					$sql_type=' INT';
 					break;
@@ -55,6 +54,7 @@ class jsonSqlInstaller{
 					$sql_type=' DATETIME';
 					break;
 				case 'bool':
+					//@deprecated
 				case 'boolean':
 					$sql_type=' BOOLEAN';
 					break;
