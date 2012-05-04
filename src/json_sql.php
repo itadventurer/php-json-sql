@@ -43,6 +43,7 @@ abstract class jsonSqlBase {
 		$this->db_structure=json_decode($db_structure);
 		$this->db_aliases=json_decode($db_aliases);
 		$this->debug=false;
+		$this->firephp=null;
 	}
 	/**
 	 *Enable/disable Debuging(Shows Sql-Query, needs firephp)
@@ -55,6 +56,9 @@ abstract class jsonSqlBase {
 			require_once($path);
 			ob_start();
 			$this->firephp = FirePHP::getInstance(true);
+		}else{
+			$this->firephp=null;
+			unset($this->firephp);
 		}	
 	}
 	/**
