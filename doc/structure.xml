@@ -1,0 +1,1228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project version="2.0.0a2" title="">
+  <file path="json_sql.php" hash="8371f30b9b2c79d6b25137d57f3212b6" package="php-json-sql">
+    <docblock line="2">
+      <description><![CDATA[Basis-SQL-Klasse]]></description>
+      <long-description><![CDATA[]]></long-description>
+      <tag line="2" name="package" description="php-json-sql"/>
+    </docblock>
+    <class final="false" abstract="true" namespace="default" line="6" package="php-json-sql">
+      <name>jsonSqlBase</name>
+      <full_name>\jsonSqlBase</full_name>
+      <extends/>
+      <docblock line="2">
+        <description><![CDATA[Basis-SQL-Klasse]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="2" name="package" description="php-json-sql"/>
+      </docblock>
+      <property final="false" static="false" visibility="protected" line="11" package="Default">
+        <name>$db_structure</name>
+        <default><![CDATA[]]></default>
+        <docblock line="7">
+          <description><![CDATA[The Database-Structure]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="7" name="var" description="" type="\json_object">
+            <type by_reference="false">\json_object</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="16" package="Default">
+        <name>$db_aliases</name>
+        <default><![CDATA[]]></default>
+        <docblock line="12">
+          <description><![CDATA[The aliases of Table/Field-names]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="12" name="var" description="" type="\json_object">
+            <type by_reference="false">\json_object</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="21" package="Default">
+        <name>$allowed_op</name>
+        <default><![CDATA[]]></default>
+        <docblock line="17">
+          <description><![CDATA[The allowed Operators for getWhere()]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="17" name="var" description="" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="27" package="Default">
+        <name>$allowed_order</name>
+        <default><![CDATA[]]></default>
+        <docblock line="23">
+          <description><![CDATA[The allowed Order-operators]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="23" name="var" description="" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="32" package="Default">
+        <name>$debug</name>
+        <default><![CDATA[]]></default>
+        <docblock line="28">
+          <description><![CDATA[Debuging aktiv?]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="28" name="var" description="boolean" type="\type">
+            <type by_reference="false">\type</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="36" package="Default">
+        <name>$firephp</name>
+        <default><![CDATA[]]></default>
+        <docblock line="33">
+          <description><![CDATA[Firephp-Objekt]]></description>
+          <long-description><![CDATA[]]></long-description>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="42" package="">
+        <name>__construct</name>
+        <type>function</type>
+        <docblock line="37">
+          <description><![CDATA[Preparing everything]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="37" name="param" description="" type="string" variable="$db_structure">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="37" name="param" description="" type="string" variable="$db_aliases">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+        <argument line="42">
+          <name>$db_structure</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="42">
+          <name>$db_aliases</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="52" package="">
+        <name>set_debug</name>
+        <type>function</type>
+        <docblock line="47">
+          <description><![CDATA[Enable/disable Debuging(Shows Sql-Query, needs firephp)]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="47" name="param" description="Enable/disable" type="bool" variable="$input">
+            <type by_reference="false">bool</type>
+          </tag>
+          <tag line="47" name="param" description="Path to firephp lib" type="string" variable="$path">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+        <argument line="52">
+          <name>$input</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="52">
+          <name>$path</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="69" package="">
+        <name>query</name>
+        <type>function</type>
+        <docblock line="60">
+          <description><![CDATA[Creates a new Query from a json_object]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="60" name="param" description="The input-object" type="\json_object" variable="$in">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="60" name="param" description="Eine Liste aller Parameter Normal: array(param1,param2...) Update: array(&quot;update&quot;=&gt;array(param1,param2...),&quot;where&quot;=&gt;array(param1,param2...))" type="null|array" variable="$params">
+            <type by_reference="false">null</type>
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="60" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="60" name="return" description="das Return der Unterfunktionen" type="\siehe">
+            <type by_reference="false">\siehe</type>
+          </tag>
+        </docblock>
+        <argument line="69">
+          <name>$in</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="69">
+          <name>$params</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="123" package="">
+        <name>format</name>
+        <type>function</type>
+        <docblock line="112">
+          <description><![CDATA[Formatiert einen String anhand eines formates]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="112" name="param" description="" type="mixed" variable="$string">
+            <type by_reference="false">mixed</type>
+          </tag>
+          <tag line="112" name="param" description="p:DB-Bezeichner (Tabellennamen, etc.) string,s: String (Varchar, Text,....) float,f: float int,i: int bool,boolean,b: bool" type="\char" variable="$f">
+            <type by_reference="false">\char</type>
+          </tag>
+          <tag line="112" name="param" description="Ist das ein Parameter (Tabellenfeld, etc...) für MySQL oder etwas, was eingefügt werden soll?" type="bool" variable="$param">
+            <type by_reference="false">bool</type>
+          </tag>
+          <tag line="112" name="return" description="Formatierter Input" type="mixed">
+            <type by_reference="false">mixed</type>
+          </tag>
+        </docblock>
+        <argument line="123">
+          <name>$string</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="123">
+          <name>$f</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="123">
+          <name>$param</name>
+          <default><![CDATA[false]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="183" package="">
+        <name>getInsert</name>
+        <type>function</type>
+        <docblock line="176">
+          <description><![CDATA[Gibt ein Key/Value-Pair]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="176" name="param" description="Das JSON-Objekt für die Insert-Abfrage" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="176" name="param" description="Die einzufügenden Daten" type="array" variable="$insert_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="176" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="176" name="return" description="array(table=&gt;array(field=&gt;value))" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+        <argument line="183">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="183">
+          <name>$insert_params</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="222" package="">
+        <name>insert</name>
+        <type>function</type>
+        <docblock line="215">
+          <description><![CDATA[Erstellt aus einem JSON-Objekt eine SQL-Insert-Abfrage]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="215" name="param" description="{&quot;_alias_&quot;:&quot;value&quot;}" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="215" name="param" description="@see query()" type="array" variable="$insert_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="215" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="215" name="return" description="Id des eingefügten Datensatzes" type="int">
+            <type by_reference="false">int</type>
+          </tag>
+        </docblock>
+        <argument line="222">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="222">
+          <name>$insert_params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="234" package="">
+        <name>execInsert</name>
+        <type>function</type>
+        <docblock line="228">
+          <description><![CDATA[Führt eine Insert-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="228" name="param" description="Tabelle" type="string" variable="$table">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="228" name="param" description="Felder (Key-Value Pair)" type="array" variable="$fields">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="228" name="return" description="insert()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="234">
+          <name>$table</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="234">
+          <name>$fields</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="242" package="">
+        <name>getForeignId</name>
+        <type>function</type>
+        <docblock line="236">
+          <description><![CDATA[Gets a foreign id for a input-value of a foreign table (select || input)]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="236" name="param" description="The input-value" type="\json_object" variable="$value">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="236" name="param" description="The alias-Object" type="\json_object" variable="$alias">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="236" name="return" description="ID des Datensatzes" type="int">
+            <type by_reference="false">int</type>
+          </tag>
+        </docblock>
+        <argument line="242">
+          <name>$value</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="242">
+          <name>$alias</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="249" package="">
+        <name>getWhat</name>
+        <type>function</type>
+        <docblock line="243">
+          <description><![CDATA[Helper function for select()]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="243" name="param" description="Which field you want to select?" type="\json_object" variable="$pwhat">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="243" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="243" name="return" description="The fields wich you want to select" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+        <argument line="249">
+          <name>$pwhat</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="310" package="">
+        <name>getWhere</name>
+        <type>function</type>
+        <docblock line="301">
+          <description><![CDATA[Helper function for select()]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="301" name="param" description="where-params" type="\json_object" variable="$pwhere">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="301" name="param" description="Die where-einfüge-parameter" type="array" variable="$where_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="301" name="param" description="Liste neuer aliase" type="array" variable="$new_alias">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="301" name="param" description="Die aktuellen Joining-Infos" type="array" variable="$join">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="301" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="301" name="return" description="the query-params" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+        <argument line="310">
+          <name>$pwhere</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="310">
+          <name>$where_params</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="310">
+          <name>$new_alias</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="310">
+          <name>$join</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="412" package="">
+        <name>getOrder</name>
+        <type>function</type>
+        <docblock line="407">
+          <description><![CDATA[returns an order-by-String]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="407" name="param" description="The Order-Param" type="\json_object" variable="$porder">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="407" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+        </docblock>
+        <argument line="412">
+          <name>$porder</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="437" package="">
+        <name>select</name>
+        <type>function</type>
+        <docblock line="414">
+          <description><![CDATA[Erstellt aus einem JSON-Objekt eine Select-Abfrage]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="414" name="param" description="{&quot;what&quot;:[&quot;_alias_&quot;...], &quot;where&quot;:[ { &quot;field&quot;:&quot;_alias_&quot;, &quot;op&quot;:&quot;_operator_&quot;, //'=','&lt;&gt;','&lt;','&gt;'... &quot;value&quot;:&quot;_value_&quot; }, { &quot;op&quot;:&quot;_op&quot;},... ], &quot;order&quot;:{ &quot;_alias_&quot;:&quot;op&quot;,... }, &quot;limit&quot;:1 }" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="414" name="param" description="Die eifüge-Parameter" type="array" variable="$select_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="414" name="param" description="bool soll execSelect() ausgeführt werden, oder nur die Parameter, die an execSelect übergeben werden würden zurückgegeben?" type="\$return" variable="$return">
+            <type by_reference="false">\$return</type>
+          </tag>
+          <tag line="414" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="414" name="return" description="PDO-Return-array: array(array(alias1=&gt;val1,alias1=&gt;val1,alias1=&gt;val1),array(alias1=&gt;val1,alias1=&gt;val1,alias1=&gt;val1),...)" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+        <argument line="437">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="437">
+          <name>$select_params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="437">
+          <name>$return</name>
+          <default><![CDATA[false]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="private" namespace="default" line="548" package="">
+        <name>count</name>
+        <type>function</type>
+        <docblock line="525">
+          <description><![CDATA[Wie where() aber, der erste Rückgabewert ist ein count()]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="525" name="param" description="{&quot;what&quot;:[&quot;_alias_&quot;...], &quot;where&quot;:[ { &quot;field&quot;:&quot;_alias_&quot;, &quot;op&quot;:&quot;_operator_&quot;, //'=','&lt;&gt;','&lt;','&gt;'... &quot;value&quot;:&quot;_value_&quot; }, { &quot;op&quot;:&quot;_op&quot;},... ], &quot;order&quot;:{ &quot;_alias_&quot;:&quot;op&quot;,... }, &quot;limit&quot;:1 }" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="525" name="param" description="Die eifüge-Parameter" type="array" variable="$select_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="525" name="param" description="bool sollen doppelte Einträge ignoriert werden?" type="\$distinct" variable="$distinct">
+            <type by_reference="false">\$distinct</type>
+          </tag>
+          <tag line="525" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+          <tag line="525" name="return" description="PDO-Return-array: array(array(alias1=&gt;count,alias1=&gt;val1,alias1=&gt;val1),array(alias1=&gt;count,alias1=&gt;val1,alias1=&gt;val1),...)" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+        <argument line="548">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="548">
+          <name>$select_params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="548">
+          <name>$distinct</name>
+          <default><![CDATA[false]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="568" package="">
+        <name>execSelect</name>
+        <type>function</type>
+        <docblock line="557">
+          <description><![CDATA[Create and execute the select-query]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="557" name="param" description="Was soll geholt werden" type="array" variable="$what">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="param" description="aus welchen Tabellen" type="array" variable="$from">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="param" description="Die Where-parameter" type="array" variable="$where">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="param" description="Order" type="\aray" variable="$order">
+            <type by_reference="false">\aray</type>
+          </tag>
+          <tag line="557" name="param" description="Gruppen-Infos" type="array" variable="$group">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="param" description="Limit" type="array" variable="$limit">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="param" description="Join-Infos" type="array" variable="$join">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="557" name="return" description="select()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="568">
+          <name>$what</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$from</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$order</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$group</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$limit</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="568">
+          <name>$join</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="575" package="">
+        <name>update</name>
+        <type>function</type>
+        <docblock line="569">
+          <description><![CDATA[Creates an update-query]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="569" name="param" description="The input-param" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="569" name="param" description="Die einfüge/update-Parameter @see query()" type="array" variable="$update_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="569" name="return" description="Hat es geklappt?" type="bool">
+            <type by_reference="false">bool</type>
+          </tag>
+        </docblock>
+        <argument line="575">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="575">
+          <name>$update_params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="596" package="">
+        <name>execUpdate</name>
+        <type>function</type>
+        <docblock line="590">
+          <description><![CDATA[Führt eine Update-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="590" name="param" description="Update-Teil" type="array" variable="$update">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="590" name="param" description="Where-Teil" type="array" variable="$where">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="590" name="return" description="update()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="596">
+          <name>$update</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="596">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="603" package="">
+        <name>delete</name>
+        <type>function</type>
+        <docblock line="597">
+          <description><![CDATA[Creates an delete-query]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="597" name="param" description="The input-param" type="\json_object" variable="$params">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="597" name="param" description="Die Lösch-Parameter" type="array" variable="$delete_params">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="597" name="return" description="Hat es geklappt?" type="bool">
+            <type by_reference="false">bool</type>
+          </tag>
+        </docblock>
+        <argument line="603">
+          <name>$params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="603">
+          <name>$delete_params</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="true" static="false" visibility="protected" namespace="default" line="619" package="">
+        <name>execDelete</name>
+        <type>function</type>
+        <docblock line="613">
+          <description><![CDATA[Führt eine Delete-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="613" name="param" description="Tabellenname" type="string" variable="$table">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="613" name="param" description="optionales Where-Objekt" type="object" variable="$where">
+            <type by_reference="false">object</type>
+          </tag>
+          <tag line="613" name="return" description="delete()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="619">
+          <name>$table</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="619">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="626" package="">
+        <name>getLabel</name>
+        <type>function</type>
+        <docblock line="621">
+          <description><![CDATA[Holt die Label-Eigenschaft eines Aliases]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="621" name="param" description="Alias-Name" type="String" variable="$alias">
+            <type by_reference="false">String</type>
+          </tag>
+          <tag line="621" name="return" description="" type="null|string">
+            <type by_reference="false">null</type>
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+        <argument line="626">
+          <name>$alias</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="637" package="">
+        <name>existAlias</name>
+        <type>function</type>
+        <docblock line="632">
+          <description><![CDATA[Existiert ein Alias unter dem Namen?]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="632" name="param" description="" type="string" variable="$alias">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="632" name="return" description="Existiert er?" type="bool">
+            <type by_reference="false">bool</type>
+          </tag>
+        </docblock>
+        <argument line="637">
+          <name>$alias</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="646" package="">
+        <name>getType</name>
+        <type>function</type>
+        <docblock line="640">
+          <description><![CDATA[Holt den Typ eines Aliases]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="640" name="param" description="Alias-Name" type="string" variable="$alias_name">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="640" name="param" description="Soll der typ des Foreign-fields zurückgegeben werden?" type="bool" variable="$foreign">
+            <type by_reference="false">bool</type>
+          </tag>
+          <tag line="640" name="return" description="" type="string">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+        <argument line="646">
+          <name>$alias_name</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="646">
+          <name>$foreign</name>
+          <default><![CDATA[false]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="664" package="">
+        <name>getAliasForeign</name>
+        <type>function</type>
+        <docblock line="659">
+          <description><![CDATA[Holt den Alias des Foreign-Felds]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="659" name="param" description="Alias-Name" type="string" variable="$alias">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="659" name="return" description="siehe in der alias.json" type="\json_object">
+            <type by_reference="false">\json_object</type>
+          </tag>
+        </docblock>
+        <argument line="664">
+          <name>$alias</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+  </file>
+  <file path="json_sql_mysql.php" hash="e30729f9d70a40aa1d3b77d38a56a6a7" package="php-json-sql">
+    <docblock line="2">
+      <description><![CDATA[SQL-Klasse für MySQL (SQLite funktioniert auch)]]></description>
+      <long-description><![CDATA[]]></long-description>
+      <tag line="2" name="package" description="php-json-sql"/>
+    </docblock>
+    <class final="false" abstract="false" namespace="default" line="6" package="php-json-sql">
+      <name>jsonSqlMysql</name>
+      <full_name>\jsonSqlMysql</full_name>
+      <extends>\jsonSqlBase</extends>
+      <docblock line="2">
+        <description><![CDATA[SQL-Klasse für MySQL (SQLite funktioniert auch)]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="2" name="package" description="php-json-sql"/>
+      </docblock>
+      <property final="false" static="false" visibility="protected" line="11" package="Default">
+        <name>$allowed_op</name>
+        <default><![CDATA[array('=','<=>','<>','!=','<=','<','>=','>','IS','IS NOT','IS NULL','IS NOT NULL','BETWEEN','IN','NOT IN')]]></default>
+        <docblock line="7">
+          <description><![CDATA[Erlaubte Operationen]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="7" name="var" description="" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="protected" line="16" package="Default">
+        <name>$allowed_order</name>
+        <default><![CDATA[array('ASC','DESC','RAND')]]></default>
+        <docblock line="12">
+          <description><![CDATA[Erlaubte Order-Befehle]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="12" name="var" description="" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="private" line="21" package="Default">
+        <name>$dbh</name>
+        <default><![CDATA[]]></default>
+        <docblock line="17">
+          <description><![CDATA[The PDO-Database-Class]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="17" name="var" description="" type="\pdo">
+            <type by_reference="false">\pdo</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="private" line="37" package="Default">
+        <name>$queryGetter</name>
+        <default><![CDATA[null]]></default>
+        <docblock line="33">
+          <description><![CDATA[Abfrage zur Filter-Abfrage]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="33" name="var" description="" type="null|\json-object">
+            <type by_reference="false">null</type>
+            <type by_reference="false">\json-object</type>
+          </tag>
+        </docblock>
+      </property>
+      <property final="false" static="false" visibility="private" line="49" package="Default">
+        <name>$filters</name>
+        <default><![CDATA[]]></default>
+        <docblock line="45">
+          <description><![CDATA[Gecachte Filter]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="45" name="var" description="" type="array">
+            <type by_reference="false">array</type>
+          </tag>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="28" package="">
+        <name>__construct</name>
+        <type>function</type>
+        <docblock line="22">
+          <description><![CDATA[Konstruktor]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="22" name="param" description="" type="\json-object" variable="$db_structure">
+            <type by_reference="false">\json-object</type>
+          </tag>
+          <tag line="22" name="param" description="" type="\json-object" variable="$db_aliases">
+            <type by_reference="false">\json-object</type>
+          </tag>
+          <tag line="22" name="param" description="" type="\pdo" variable="$dbh">
+            <type by_reference="false">\pdo</type>
+          </tag>
+        </docblock>
+        <argument line="28">
+          <name>$db_structure</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="28">
+          <name>$db_aliases</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="28">
+          <name>$dbh</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="42" package="">
+        <name>initQueryGetter</name>
+        <type>function</type>
+        <docblock line="38">
+          <description><![CDATA[Initialisiert die Funktion, Filter aus der Datenbank zu holen]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="38" name="param" description="Die Abfrage dazu" type="\json-object" variable="$query">
+            <type by_reference="false">\json-object</type>
+          </tag>
+        </docblock>
+        <argument line="42">
+          <name>$query</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="55" package="">
+        <name>getQueryFromDB</name>
+        <type>function</type>
+        <docblock line="50">
+          <description><![CDATA[Holt eine Abfrage aus der Datenbank und führt diese aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="50" name="param" description="Abfragenname" type="String" variable="$name">
+            <type by_reference="false">String</type>
+          </tag>
+          <tag line="50" name="throws" description="" type="\SQLException">
+            <type by_reference="false">\SQLException</type>
+          </tag>
+        </docblock>
+        <argument line="55">
+          <name>$name</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="86" package="">
+        <name>getExtQueryFromDB</name>
+        <type>function</type>
+        <docblock line="78">
+          <description><![CDATA[Führt die (evtl. Erweiterte) Abfrage mit Parametern aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="78" name="see" description="\jsonSqlMysql::getQueryFromDB" refers="\jsonSqlMysql::getQueryFromDB"/>
+          <tag line="78" name="param" description="Abfragen-Name" type="string" variable="$name">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="78" name="param" description="Parameter" type="\json-object" variable="$params">
+            <type by_reference="false">\json-object</type>
+          </tag>
+          <tag line="78" name="param" description="Abfragen-Erweiterung" type="\json-object" variable="$additional">
+            <type by_reference="false">\json-object</type>
+          </tag>
+          <tag line="78" name="throws" description="" type="\SQLException">
+            <type by_reference="false">\SQLException</type>
+          </tag>
+        </docblock>
+        <argument line="86">
+          <name>$name</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="86">
+          <name>$params</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="86">
+          <name>$additional</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="138" package="">
+        <name>getPDOType</name>
+        <type>function</type>
+        <docblock line="132">
+          <description><![CDATA[returns The PDO::PARAM_*-Type for a Field]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="132" name="param" description="Tabellenname" type="string" variable="$table">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="132" name="param" description="Feldname" type="string" variable="$field">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="132" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+        </docblock>
+        <argument line="138">
+          <name>$table</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="138">
+          <name>$field</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="184" package="">
+        <name>execUpdate</name>
+        <type>function</type>
+        <docblock line="178">
+          <description><![CDATA[Führt eine Update-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="178" name="param" description="Update-Teil" type="array" variable="$update">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="178" name="param" description="Where-Teil" type="array" variable="$where">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="178" name="return" description="update()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="184">
+          <name>$update</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="184">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="235" package="">
+        <name>getForeignId</name>
+        <type>function</type>
+        <docblock line="229">
+          <description><![CDATA[Gets a foreign id for a input-value of a foreign table (select || input)]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="229" name="param" description="The input-value" type="\json_object" variable="$value">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="229" name="param" description="The alias-Object" type="\json_object" variable="$alias">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="229" name="return" description="ID des Datensatzes" type="int">
+            <type by_reference="false">int</type>
+          </tag>
+        </docblock>
+        <argument line="235">
+          <name>$value</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="235">
+          <name>$alias</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="257" package="">
+        <name>getOrder</name>
+        <type>function</type>
+        <docblock line="252">
+          <description><![CDATA[returns an order-by-String]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="252" name="param" description="The Order-Param" type="\json_object" variable="$porder">
+            <type by_reference="false">\json_object</type>
+          </tag>
+          <tag line="252" name="throws" description="" type="\sqlException">
+            <type by_reference="false">\sqlException</type>
+          </tag>
+        </docblock>
+        <argument line="257">
+          <name>$porder</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="274" package="">
+        <name>execInsert</name>
+        <type>function</type>
+        <docblock line="268">
+          <description><![CDATA[Führt eine Insert-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="268" name="param" description="Tabelle" type="string" variable="$table">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="268" name="param" description="Felder (Key-Value Pair)" type="array" variable="$fields">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="268" name="return" description="insert()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="274">
+          <name>$table</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="274">
+          <name>$fields</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="private" namespace="default" line="312" package="">
+        <name>getJoinSelect</name>
+        <type>function</type>
+        <docblock line="307">
+          <description><![CDATA[Erstellt den Join-Teil für die Select-Abfrage]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="307" name="param" description="Das Join-Array" type="array" variable="$join">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="307" name="return" description="der Join-Teil der Abfrage" type="string">
+            <type by_reference="false">string</type>
+          </tag>
+        </docblock>
+        <argument line="312">
+          <name>$join</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="343" package="">
+        <name>execSelect</name>
+        <type>function</type>
+        <docblock line="332">
+          <description><![CDATA[Create and execute the select-query]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="332" name="param" description="Was soll geholt werden" type="array" variable="$what">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="param" description="aus welchen Tabellen" type="array" variable="$from">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="param" description="Die Where-parameter" type="array" variable="$where">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="param" description="Order" type="\aray" variable="$order">
+            <type by_reference="false">\aray</type>
+          </tag>
+          <tag line="332" name="param" description="Gruppen-Infos" type="array" variable="$group">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="param" description="Limit" type="array" variable="$limit">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="param" description="Join-Infos" type="array" variable="$join">
+            <type by_reference="false">array</type>
+          </tag>
+          <tag line="332" name="return" description="select()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="343">
+          <name>$what</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$from</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$order</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$group</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$limit</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+        <argument line="343">
+          <name>$join</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="protected" namespace="default" line="428" package="">
+        <name>execDelete</name>
+        <type>function</type>
+        <docblock line="422">
+          <description><![CDATA[Führt eine Delete-Abfrage aus]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="422" name="param" description="Tabellenname" type="string" variable="$table">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="422" name="param" description="optionales Where-Objekt" type="object" variable="$where">
+            <type by_reference="false">object</type>
+          </tag>
+          <tag line="422" name="return" description="delete()" type="\@see">
+            <type by_reference="false">\@see</type>
+          </tag>
+        </docblock>
+        <argument line="428">
+          <name>$table</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="428">
+          <name>$where</name>
+          <default><![CDATA[null]]></default>
+          <type/>
+        </argument>
+      </method>
+    </class>
+  </file>
+  <file path="sqlException.php" hash="66e05fcfd493575bb00345babb602dfa" package="php-json-sql">
+    <docblock line="2">
+      <description><![CDATA[Exception-Handler-Klasse]]></description>
+      <long-description><![CDATA[]]></long-description>
+      <tag line="2" name="package" description="php-json-sql"/>
+    </docblock>
+    <class final="false" abstract="false" namespace="default" line="6" package="php-json-sql">
+      <name>sqlException</name>
+      <full_name>\sqlException</full_name>
+      <extends>\Exception</extends>
+      <docblock line="2">
+        <description><![CDATA[Exception-Handler-Klasse]]></description>
+        <long-description><![CDATA[]]></long-description>
+        <tag line="2" name="package" description="php-json-sql"/>
+      </docblock>
+      <property final="false" static="false" visibility="private" line="11" package="Default">
+        <name>$additional</name>
+        <default><![CDATA[null]]></default>
+        <docblock line="7">
+          <description><![CDATA[Weitere Informationen zur Exception]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="7" name="var" description="" type="mixed">
+            <type by_reference="false">mixed</type>
+          </tag>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="18" package="">
+        <name>__construct</name>
+        <type>function</type>
+        <docblock line="12">
+          <description><![CDATA[Erstellt die Exception]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="12" name="param" description="Die Error-Nachricht" type="string" variable="$message">
+            <type by_reference="false">string</type>
+          </tag>
+          <tag line="12" name="param" description="Der Error-Code (Unix timestamp, Hardcoded)" type="int" variable="$code">
+            <type by_reference="false">int</type>
+          </tag>
+          <tag line="12" name="param" description="Weitere Informationen" type="mixed" variable="$additional">
+            <type by_reference="false">mixed</type>
+          </tag>
+        </docblock>
+        <argument line="18">
+          <name>$message</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="18">
+          <name>$code</name>
+          <default><![CDATA[]]></default>
+          <type/>
+        </argument>
+        <argument line="18">
+          <name>$additional</name>
+          <default><![CDATA['']]></default>
+          <type/>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="default" line="27" package="">
+        <name>getAdditional</name>
+        <type>function</type>
+        <docblock line="23">
+          <description><![CDATA[Gibt die weiteren Informationen zurück]]></description>
+          <long-description><![CDATA[]]></long-description>
+          <tag line="23" name="return" description="" type="mixed">
+            <type by_reference="false">mixed</type>
+          </tag>
+        </docblock>
+      </method>
+    </class>
+  </file>
+  <package name="" full_name=""/>
+  <package name="Default" full_name="Default"/>
+  <package name="php-json-sql" full_name="php-json-sql"/>
+  <namespace name="default" full_name="default"/>
+  <marker count="0">todo</marker>
+  <marker count="0">fixme</marker>
+  <deprecated count="0"/>
+</project>

@@ -1,4 +1,8 @@
 <?php
+/**
+ * Basis-SQL-Klasse
+ * @package php-json-sql
+ */
 abstract class jsonSqlBase {
 	/**
 	 * The Database-Structure
@@ -56,7 +60,11 @@ abstract class jsonSqlBase {
 	/**
 	 * Creates a new Query from a json_object
 	 * @param json_object $in The input-object
+	 * @param null|array $params Eine Liste aller Parameter
+	 * Normal: array(param1,param2...)
+	 * Update: array("update"=>array(param1,param2...),"where"=>array(param1,param2...))
 	 * @throws sqlException
+	 * @return siehe das Return der Unterfunktionen
 	 */
 	public function query($in,$params=null) {
 		global $dbh;
@@ -109,6 +117,8 @@ abstract class jsonSqlBase {
 	 * float,f: float
 	 * int,i: int
 	 * bool,boolean,b: bool
+	 * @param bool $param Ist das ein Parameter (Tabellenfeld, etc...) für MySQL oder etwas, was eingefügt werden soll?
+	 * @return mixed Formatierter Input
 	 */
 	protected function format($string,$f,$param=false) {
 		
@@ -168,6 +178,7 @@ abstract class jsonSqlBase {
 	 * @param json_object $params Das JSON-Objekt für die Insert-Abfrage
 	 * @param array $insert_params Die einzufügenden Daten
 	 * @throws sqlException
+	 * @return array array(table=>array(field=>value))
 	 */
 	protected function getInsert($params,$insert_params=null) {
 		$insert=array();
@@ -204,7 +215,9 @@ abstract class jsonSqlBase {
 	/**
 	 * Erstellt aus einem JSON-Objekt eine SQL-Insert-Abfrage
 	 * @param json_object $params {"_alias_":"value"}
+	 * @param array @see query()
 	 * @throws sqlException
+	 * @return int Id des eingefügten Datensatzes
 	 */
 	protected function insert($params,$insert_params) {
 		$insert=$this->getInsert($params,$insert_params);
@@ -216,6 +229,7 @@ abstract class jsonSqlBase {
 	 * Führt eine Insert-Abfrage aus
 	 * @param string $table Tabelle
 	 * @param array $fields Felder (Key-Value Pair)
+	 * @return @see insert()
 	 */
 	protected abstract function execInsert($table,$fields);
 
@@ -223,6 +237,7 @@ abstract class jsonSqlBase {
 	 * Gets a foreign id for a input-value of a foreign table (select || input)
 	 * @param json_object $value The input-value
 	 * @param json_object $alias The alias-Object
+	 * @return int ID des Datensatzes
 	 */
 	protected abstract function getForeignId($value,$alias);
 	/**
@@ -243,7 +258,6 @@ abstract class jsonSqlBase {
 				$val_obj=true;
 			} else {
 				$val=$val_alias;
-				//$new_alias[$val]=$val;
 			}
 			if(!isset($this->db_aliases->$val))
 				throw new sqlException('no such db-alias', 1325074427,$val);
@@ -287,6 +301,9 @@ abstract class jsonSqlBase {
 	/**
 	 * Helper function for select()
 	 * @param json_object $pwhere where-params
+	 * @param array $where_params Die where-einfüge-parameter
+	 * @param array $new_alias Liste neuer aliase
+	 * @param array $join Die aktuellen Joining-Infos
 	 * @throws sqlException
 	 * @return array the query-params
 	 */
@@ -411,7 +428,11 @@ abstract class jsonSqlBase {
 	 *  },
 	 *  "limit":1
 	 * }
+	 * @param array $select_params Die eifüge-Parameter
+	 * @param $return bool soll execSelect() ausgeführt werden, oder nur die Parameter, die an execSelect übergeben werden würden zurückgegeben?
 	 * @throws sqlException
+	 * @return array PDO-Return-array:
+	 * array(array(alias1=>val1,alias1=>val1,alias1=>val1),array(alias1=>val1,alias1=>val1,alias1=>val1),...)
 	 */
 	protected function select($params,$select_params,$return=false) {
 		//SELECT $what FROM $from [WHERE $where] [ORDER BY $order] [LIMIT $limit]
@@ -501,6 +522,29 @@ abstract class jsonSqlBase {
 		else
 			return $this->execSelect($what, $from,$where,$order,$group,$limit,$join);
 	}
+	/**
+	 * Wie where() aber, der erste Rückgabewert ist ein count()
+	 * @param json_object $params
+	 * {"what":["_alias_"...],
+	 * 	"where":[
+	 * 	{
+	 * 		"field":"_alias_",
+	 * 		"op":"_operator_", //'=','<>','<','>'...
+	 * 		"value":"_value_"
+	 * 	},
+	 * 	{ "op":"_op"},...
+	 * 	],
+	 *  "order":{
+	 *  "_alias_":"op",...
+	 *  },
+	 *  "limit":1
+	 * }
+	 * @param array $select_params Die eifüge-Parameter
+	 * @param $distinct bool sollen doppelte Einträge ignoriert werden?
+	 * @throws sqlException
+	 * @return array PDO-Return-array:
+	 * array(array(alias1=>count,alias1=>val1,alias1=>val1),array(alias1=>count,alias1=>val1,alias1=>val1),...)
+	 */
 	private  function count($params,$select_params,$distinct=false) {
 		$params=$this->select($params,$select_params,true);
 		if(!$distinct)
@@ -512,17 +556,21 @@ abstract class jsonSqlBase {
 	}
 	/**
 	 * Create and execute the select-query
-	 * @param array $what
-	 * @param array $from
-	 * @param array $where
-	 * @param aray $order
-	 * @param array $limit
-	 * @param array $join
+	 * @param array $what Was soll geholt werden
+	 * @param array $from aus welchen Tabellen
+	 * @param array $where Die Where-parameter
+	 * @param aray $order Order
+	 * @param array $group Gruppen-Infos
+	 * @param array $limit Limit
+	 * @param array $join Join-Infos
+	 * @return @see select()
 	 */
 	protected abstract function execSelect($what,$from,$where=null,$order=null,$group=null,$limit=null,$join=null);
 	/**
 	 * Creates an update-query
 	 * @param json_object $params The input-param
+	 * @param array $update_params Die einfüge/update-Parameter @see query()
+	 * @return bool Hat es geklappt?
 	 */
 	protected function update($params,$update_params) {
 		if(!isset($update_params['update']) && !isset($update_params['where']))
@@ -543,11 +591,14 @@ abstract class jsonSqlBase {
 	 * Führt eine Update-Abfrage aus
 	 * @param array $update Update-Teil
 	 * @param array $where Where-Teil
+	 * @return @see update()
 	 */
 	protected abstract function execUpdate($update,$where=null);
 	/**
 	 * Creates an delete-query
 	 * @param json_object $params The input-param
+	 * @param array $delete_params Die Lösch-Parameter
+	 * @return bool Hat es geklappt?
 	 */
 	protected function delete($params,$delete_params){
 		if(!isset($params->table) || !isset($this->db_structure->{$params->table}))
@@ -563,6 +614,7 @@ abstract class jsonSqlBase {
 	 * Führt eine Delete-Abfrage aus
 	 * @param string $table Tabellenname
 	 * @param object $where optionales Where-Objekt
+	 * @return @see delete()
 	 */
 	protected abstract function execDelete($table,$where=null);
 
@@ -580,6 +632,7 @@ abstract class jsonSqlBase {
 	/**
 	 * Existiert ein Alias unter dem Namen?
 	 * @param string $alias
+	 * @return bool Existiert er?
 	 */
 	public function existAlias($alias) {
 		return isset($this->db_aliases->$alias);
@@ -606,7 +659,7 @@ abstract class jsonSqlBase {
 	/**
 	 * Holt den Alias des Foreign-Felds
 	 * @param string $alias Alias-Name
-	 * @return object
+	 * @return json_object siehe in der alias.json
 	 */
 	public function getAliasForeign($alias){
 		if(isset($this->db_aliases->$alias_name)) {

@@ -1,4 +1,8 @@
 <?php
+/**
+ * SQL-Klasse für MySQL (SQLite funktioniert auch)
+ * @package php-json-sql
+ */
 class jsonSqlMysql extends jsonSqlBase {
 	/**
 	 * Erlaubte Operationen
@@ -127,7 +131,8 @@ class jsonSqlMysql extends jsonSqlBase {
 
 	/**
 	 * returns The PDO::PARAM_*-Type for a Field
-	 * @param json_object $structure The Field-Structure
+	 * @param string $table Tabellenname
+	 * @param string $field Feldname
 	 * @throws sqlException
 	 */
 	protected function getPDOType($table,$field) {
@@ -171,8 +176,10 @@ class jsonSqlMysql extends jsonSqlBase {
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::execUpdate()
+	 * Führt eine Update-Abfrage aus
+	 * @param array $update Update-Teil
+	 * @param array $where Where-Teil
+	 * @return @see update()
 	 */
 	protected function execUpdate($update, $where=null) {
 		$types=array();
@@ -220,8 +227,10 @@ class jsonSqlMysql extends jsonSqlBase {
 
 
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::getForeignId()
+	 * Gets a foreign id for a input-value of a foreign table (select || input)
+	 * @param json_object $value The input-value
+	 * @param json_object $alias The alias-Object
+	 * @return int ID des Datensatzes
 	 */
 	protected function getForeignId($value,$alias) {
 		$sql='SELECT id FROM '.$alias->foreign->table.' WHERE '.$alias->foreign->field.'=?';
@@ -241,8 +250,9 @@ class jsonSqlMysql extends jsonSqlBase {
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::getOrder()
+	 * returns an order-by-String
+	 * @param json_object $porder The Order-Param
+	 * @throws sqlException
 	 */
 	protected function getOrder($porder) {
 		$porder='ORDER BY';
@@ -256,8 +266,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		return $order;
 	}
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::execInsert()
+	 * Führt eine Insert-Abfrage aus
+	 * @param string $table Tabelle
+	 * @param array $fields Felder (Key-Value Pair)
+	 * @return @see insert()
 	 */
 	protected function execInsert($table, $fields) {
 		$sql='INSERT INTO '.$table.' (';
@@ -292,6 +304,11 @@ class jsonSqlMysql extends jsonSqlBase {
 
 		return $this->dbh->lastInsertId();
 	}
+	/**
+	* Erstellt den Join-Teil für die Select-Abfrage
+	* @param array $join Das Join-Array
+	* @return string der Join-Teil der Abfrage
+	*/
 	private function getJoinSelect($join){
 			$sql_join='';
 			$sql='';
@@ -313,8 +330,15 @@ class jsonSqlMysql extends jsonSqlBase {
 			return $sql;
 	}
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::execSelect()
+	 * Create and execute the select-query
+	 * @param array $what Was soll geholt werden
+	 * @param array $from aus welchen Tabellen
+	 * @param array $where Die Where-parameter
+	 * @param aray $order Order
+	 * @param array $group Gruppen-Infos
+	 * @param array $limit Limit
+	 * @param array $join Join-Infos
+	 * @return @see select()
 	 */
 	protected function execSelect($what, $from,$where=null,$order=null,$group=null,$limit=null,$join=null) {
 		$values=null;
@@ -396,8 +420,10 @@ class jsonSqlMysql extends jsonSqlBase {
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}
 	/**
-	 * (non-PHPdoc)
-	 * @see jsonSqlBase::execDelete()
+	 * Führt eine Delete-Abfrage aus
+	 * @param string $table Tabellenname
+	 * @param object $where optionales Where-Objekt
+	 * @return @see delete()
 	 */
 	protected function execDelete($table, $where=null) {
 		$sql='DELETE FROM '.$table;
