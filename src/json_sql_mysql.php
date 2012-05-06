@@ -56,7 +56,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		if($this->queryGetter===null)
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
 			
-		if($this->debug);
+		if($this->debug)
 			$this->firephp->group($name);
 		
 		if(isset($this->filters[$name])){
