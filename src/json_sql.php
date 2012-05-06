@@ -56,7 +56,7 @@ abstract class jsonSqlBase {
 			require_once($path);
 			ob_start();
 			$this->firephp = FirePHP::getInstance(true);
-		}else{
+		}elseif(isset($this->firephp) && $this->firephp!=null){
 			$this->firephp=null;
 			unset($this->firephp);
 		}	
