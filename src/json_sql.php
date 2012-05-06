@@ -108,8 +108,10 @@ abstract class jsonSqlBase {
 					$ret= $this->delete($in,$params);
 					break;
 			}
-			if($this->debug)
+			if($this->debug){
+				$this->firephp->log($ret,"Return");
 				$this->firephp->groupEnd();
+			}
 			return $ret;
 		}
 	}
