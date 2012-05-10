@@ -94,10 +94,13 @@ class jsonSqlInstaller{
 			$query.="\n);\n";
 		}
 		try {
-		echo $query;
+		//echo $query;
 			$e=$this->dbh->exec($query);
-			var_dump($this->dbh->errorInfo());
-			echo '<hr />Database created <br />';
+			$error=$this->dbh->errorInfo();
+			if($error[0]!="00000")
+				var_dump($this->dbh->errorInfo());
+			else
+				echo 'Database created';
 		}catch(Exception $e) {
 			echo 'Fehler: '.$e;
 		}
