@@ -1,5 +1,5 @@
 <?php
-if(!isset(ROOTDIR)) exit();
+if(!defined('ROOTDIR')) exit();
 include_once ROOTDIR.'../../src/json_sql.php';
 include_once ROOTDIR.'../../src/json_sql_mysql.php';
 include_once ROOTDIR.'../../src/sqlException.php';
