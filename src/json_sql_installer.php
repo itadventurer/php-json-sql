@@ -14,14 +14,16 @@ class jsonSqlInstaller{
 	 * @var json_object
 	 */
 	private $tables;
+	private $isSqlite=false;
 	/**
 	 * Initialisiert die Klasse
-	 * @param String $input_tables JSON_String mit Datenbank-Structur
+	 * @param String $input_tables JSON-Objekt mit Datenbank-Structur
 	 * @param pdo $input_dbh	pdo-Objekt
 	 */
-	public function __construct($input_tables,$input_dbh){
-		$this->tables=json_decode($input_tables);
+	public function __construct($input_tables,$input_dbh,$is_sqlite=false){
+		$this->tables=$input_tables;
 		$this->dbh=$input_dbh;
+		$this->isSqlite=$is_sqlite;
 	}
 	/**
 	 * Konvertiert den im JSON-Objekt $tables festgelegten Datentyp in den Passenden Mysql-Datentyp
@@ -42,6 +44,9 @@ class jsonSqlInstaller{
 		} else {
 			switch($type) {
 				case "id":
+					if($this->isSqlite)
+					$sql_type=' INTEGER PRIMARY KEY AUTOINCREMENT';
+					else
 					$sql_type=' INT PRIMARY KEY AUTO_INCREMENT';
 					break;
 				case "int":
@@ -89,8 +94,10 @@ class jsonSqlInstaller{
 			$query.="\n);\n";
 		}
 		try {
+		echo $query;
 			$e=$this->dbh->exec($query);
-			echo '<br>Database created <br />';
+			var_dump($this->dbh->errorInfo());
+			echo '<hr />Database created <br />';
 		}catch(Exception $e) {
 			echo 'Fehler: '.$e;
 		}
