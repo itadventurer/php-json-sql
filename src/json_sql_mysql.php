@@ -87,7 +87,7 @@ class jsonSqlMysql extends jsonSqlBase {
 		if($this->queryGetter===null)
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
 			
-		if($this->debug);
+		if($this->debug)
 			$this->firephp->group($name);
 
 		if(isset($this->filters[$name]) && is_object($this->filters[$name])){
@@ -112,19 +112,22 @@ class jsonSqlMysql extends jsonSqlBase {
 							$filter->{$key}[]=$val;
 					}elseif(is_object($val) && is_object($filter->$key)){
 						foreach($val as $key2=>$val2) {
-							if(!isset($filter->$key->$key2))
+							//if(!isset($filter->$key->$key2))
 								$filter->$key->$key2=$val2;
 						}
 					}elseif(is_array($val) && is_array($filter->$key)){
 						foreach($val as $val2) {
 							$filter->{$key}[]=$val2;
 						}
+					} else {
+						$filter->$key=$val;
 					}
 				}
 			}
 		}
 	
 		$ret= $this->query($filter,$params);
+		if($this->debug)
 		$this->firephp->groupEnd();
 		return $ret;
 	}
@@ -197,14 +200,10 @@ class jsonSqlMysql extends jsonSqlBase {
 				$additional=' ORDER BY '.$key.' DESC';
 			} else {
 				$sql.=' '.$key.'=?';
-				switch ($val) {
-				    case 'true':
+				if($val==='true')
 				        $val=true;
-				        break;
-				    case 'false':
+				 elseif($val==='false')
 				        $val=false;
-				        break;
-				}
 				
 				$types[]=array($val, $this->getPDOType($table, $key));
 			}
@@ -257,6 +256,7 @@ class jsonSqlMysql extends jsonSqlBase {
 	protected function getOrder($porder) {
 		$porder='ORDER BY';
 		$i=0;
+		
 		foreach($porder as $key=>$val) {
 			if($i!=0)
 				$order.=',';
@@ -379,9 +379,11 @@ class jsonSqlMysql extends jsonSqlBase {
 				} elseif($counter==false) {
 					if(isset($field['type']) && $field['type']=='count')
 						$ordered_what[$field['position']]=' COUNT('.$table.'.'.$field['field'].') AS '.$field['alias'];
-					elseif(isset($field['type']) && $field['type']=='count_distinct')
+					elseif(isset($field['type']) && $field['type']=='count_distinct'){
 						$ordered_what[$field['position']]=' COUNT( DISTINCT '.$table.'.'.$field['field'].') AS '.$field['alias'];
-					else
+						//var_dump($field);
+						//echo 'lala'; exit;
+					}else
 						$ordered_what[$field['position']]=' '.$table.'.'.$field['field'].' AS '.$field['alias'];
 				}
 			}
@@ -402,8 +404,10 @@ class jsonSqlMysql extends jsonSqlBase {
 			$sql.=' GROUP BY '.$group['table'].'.'.$group['field'];
 		}
 		if($order) {
-			foreach($order as $val) {
-				$sql.=' ORDER BY '.$val['table'].'.'.$val['field'].' '.$val['op'].' ';
+			$sql.=' ORDER BY ';
+			foreach($order as $key=>$val) {
+				if($key!=0) $sql.=', ';
+				$sql.=$val['table'].'.'.$val['field'].' '.$val['op'].' ';
 			}
 		}
 		if($limit) {

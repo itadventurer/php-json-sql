@@ -149,12 +149,16 @@ abstract class jsonSqlBase {
 			case 'date':
 			case 'datetime':
 			case 'text':
+				if(is_array($string))
+					return $string;
+				
 				$string=str_replace(
 				array("\x00","\n","\r","\\","'","\"","\x1a"),
 				array("\\x00","\\n","\\r","\\\\","\\'","\\\"","\\x1a")
 				,$string);
 				if($param)
 					return '"'.$string.'"';
+					
 				return $string;
 				break;
 			case 'float':
@@ -194,7 +198,6 @@ abstract class jsonSqlBase {
 			if(!isset($this->db_aliases->$key))
 				throw new sqlException('No such alias', 1325435040,$key);
 			$alias=$this->db_aliases->$key;
-			
 			if($val=='?') {
 				if($insert_params!=null && count($insert_params)>0) {
 					$p_key=key($insert_params);
@@ -385,6 +388,9 @@ abstract class jsonSqlBase {
 					case 'LIKE':
 						$where.=$value;
 						break;
+					case 'NOT LIKE':
+						$where.=$value;
+						break;
 					case 'IN':
 					case 'NOT IN':
 					    $where.='(';
@@ -498,7 +504,7 @@ abstract class jsonSqlBase {
 		$group=null;
 		if(isset($params->group)) {
 			if(!isset($this->db_aliases->{$params->group}))
-				throw new sqlException('No such alias', 1325083415,$key);
+				throw new sqlException('No such alias', 1325083415,$params->group);
 			
 			$alias=$this->db_aliases->{$params->group};
 
@@ -506,7 +512,7 @@ abstract class jsonSqlBase {
 			$alias_field=$alias->field;
 
 			if(isset($alias->foreign)) {
-				if($new_alias==null || !isset($new_alias[$key])){
+				if($new_alias==null || !isset($new_alias[$params->group])){
 					$group=array('table'=>$alias->foreign->table,'field'=>$alias->foreign->field);
 				}else {
 					$group=array('table'=>$new_alias[$params->group],'field'=>$alias->foreign->field);
@@ -579,14 +585,17 @@ abstract class jsonSqlBase {
 	 * @return bool Hat es geklappt?
 	 */
 	protected function update($params,$update_params) {
-		if(!isset($update_params['update']) && !isset($update_params['where']))
+	
+		if(!isset($update_params['update']) && !isset($update_params['where']) && is_array($update_params))
 			$update_params=$update_params[key($update_params)];
 		if(!isset($params->update))
 			throw new sqlException('Nothing to update', 1325688162);
 			
 		$update=$this->getInsert($params->update,@$update_params['update']);
+		
 		if(count($update)!=1)
 			throw new sqlException('You can update only one table a time!', 1325688732);
+			
 		if(isset($params->where)) {
 			$temp=$this->getWhere($params->where,@$update_params['where']);
 			$where=$temp[0];
