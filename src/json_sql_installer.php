@@ -34,42 +34,42 @@ class jsonSqlInstaller{
 		$sql_type='';
 		if(is_array($type)) {
 			switch($type[0]) {
-				case "string":
-					$sql_type=' VARCHAR('.intval($type[1]).')';
-					break;
-				case 'foreign':
-					$sql_type=' INT';
-					break;
+			case "string":
+				$sql_type=' VARCHAR('.intval($type[1]).')';
+				break;
+			case 'foreign':
+				$sql_type=' INT';
+				break;
 			}
 		} else {
 			switch($type) {
-				case "id":
-					if($this->isSqlite)
+			case "id":
+				if($this->isSqlite)
 					$sql_type=' INTEGER PRIMARY KEY AUTOINCREMENT';
-					else
+				else
 					$sql_type=' INT PRIMARY KEY AUTO_INCREMENT';
-					break;
-				case "int":
-					$sql_type=' INT';
-					break;
-				case 'date':
-					$sql_type=' DATE';
-					break;
-				case 'datetime':
-					$sql_type=' DATETIME';
-					break;
-				case 'bool':
-					//@deprecated
-				case 'boolean':
-					$sql_type=' BOOLEAN';
-					break;
-				case 'text':
-				case 'json':
-					$sql_type=' TEXT';
-					break;
-				case 'timestamp':
-					$sql_type=' TIMESTAMP';
-					break;
+				break;
+			case "int":
+				$sql_type=' INT';
+				break;
+			case 'date':
+				$sql_type=' DATE';
+				break;
+			case 'datetime':
+				$sql_type=' DATETIME';
+				break;
+			case 'bool':
+				//@deprecated
+			case 'boolean':
+				$sql_type=' BOOLEAN';
+				break;
+			case 'text':
+			case 'json':
+				$sql_type=' TEXT';
+				break;
+			case 'timestamp':
+				$sql_type=' TIMESTAMP';
+				break;
 			}
 		}
 		return $sql_type;
@@ -94,7 +94,7 @@ class jsonSqlInstaller{
 			$query.="\n);\n";
 		}
 		try {
-		//echo $query;
+			//echo $query;
 			$e=$this->dbh->exec($query);
 			$error=$this->dbh->errorInfo();
 			if($error[0]!="00000")

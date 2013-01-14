@@ -10,6 +10,12 @@ class jsonSqlMysql extends jsonSqlBase {
 	 */
 	protected $allowed_op=array('=','<=>','<>','!=','<=','<','>=','>','IS','IS NOT','IS NULL','IS NOT NULL','BETWEEN','IN','NOT IN');
 	/**
+	 * Erlaubte Operationen Für Case-then
+	 * @var array
+	 */
+	protected $allowed_case_op=array('=','+','-','*','/','NOTHING');
+
+	/**
 	 * Erlaubte Order-Befehle
 	 * @var array
 	 */
@@ -55,10 +61,10 @@ class jsonSqlMysql extends jsonSqlBase {
 	public function getQueryFromDB($name) {
 		if($this->queryGetter===null)
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
-			
+
 		if($this->debug)
 			$this->firephp->group($name);
-		
+
 		if(isset($this->filters[$name])){
 			$filter=$this->filters[$name];
 		} else{
@@ -70,7 +76,9 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 		$params=func_get_args();
 		unset($params[0]);
-		$ret=$this->query(json_decode($filter),$params);
+		if(!is_object($filter))
+			$filter=json_decode($filter);
+		$ret=$this->query($filter,$params);
 		if($this->debug)
 			$this->firephp->groupEnd();
 		return $ret;
@@ -86,12 +94,12 @@ class jsonSqlMysql extends jsonSqlBase {
 	public function getExtQueryFromDB($name,$params=null,$additional=null) {
 		if($this->queryGetter===null)
 			throw new SQLException('Query Getter was not initialized yet', 1327325963);
-			
+
 		if($this->debug)
 			$this->firephp->group($name);
 
 		if(isset($this->filters[$name]) && is_object($this->filters[$name])){
-				$filter=clone $this->filters[$name];
+			$filter=clone $this->filters[$name];
 		} else{
 			$filter=$this->query($this->queryGetter,array($name));
 
@@ -109,11 +117,10 @@ class jsonSqlMysql extends jsonSqlBase {
 					$filter->$key=$val;
 				}else{
 					if(is_object($val) && is_array($filter->$key)){
-							$filter->{$key}[]=$val;
+						$filter->{$key}[]=$val;
 					}elseif(is_object($val) && is_object($filter->$key)){
 						foreach($val as $key2=>$val2) {
-							//if(!isset($filter->$key->$key2))
-								$filter->$key->$key2=$val2;
+							$filter->$key->$key2=$val2;
 						}
 					}elseif(is_array($val) && is_array($filter->$key)){
 						foreach($val as $val2) {
@@ -125,10 +132,10 @@ class jsonSqlMysql extends jsonSqlBase {
 				}
 			}
 		}
-	
+
 		$ret= $this->query($filter,$params);
 		if($this->debug)
-		$this->firephp->groupEnd();
+			$this->firephp->groupEnd();
 		return $ret;
 	}
 
@@ -152,28 +159,28 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 
 		switch($f) {
-			case 'string':
-			case 'text':
-			case 'json':
-			case 's':
-			case 'date':
-			case 'datetime':
-				return PDO::PARAM_STR;
-				break;
-			case 'float':
-			case 'f':
-				return PDO::PARAM_STR;
-				break;
-			case 'int':
-			case 'i':
-			case 'id':
-				return PDO::PARAM_INT;
-				break;
-			case 'bool':
-			case 'boolean':
-			case 'b':
-				return PDO::PARAM_BOOL;
-				break;
+		case 'string':
+		case 'text':
+		case 'json':
+		case 's':
+		case 'date':
+		case 'datetime':
+			return PDO::PARAM_STR;
+			break;
+		case 'float':
+		case 'f':
+			return PDO::PARAM_STR;
+			break;
+		case 'int':
+		case 'i':
+		case 'id':
+			return PDO::PARAM_INT;
+			break;
+		case 'bool':
+		case 'boolean':
+		case 'b':
+			return PDO::PARAM_BOOL;
+			break;
 		}
 		throw new sqlException('Wrong type for query', 1325520117,$f);
 	}
@@ -198,13 +205,52 @@ class jsonSqlMysql extends jsonSqlBase {
 			elseif($val===99999999) {
 				$sql.=' '.$key.'='.$key.'+1 ';
 				$additional=' ORDER BY '.$key.' DESC';
-			} else {
+			}elseif(is_array($val)){
+				$sql.=' '.$key.'= CASE ';
+				foreach($val as $val2) {
+					if(isset($val2->else)){
+						$sql.=' ELSE ';
+						switch($val2->else->op){
+						case '=':
+							$sql.=$val2->else->value;
+							break;
+						case 'NOTHING':
+							$sql.=$val2->else->field->field;
+							break;
+						default:
+							$sql.=$val2->else->field->field.' '.$val2->else->op.' '.$val2->else->value;
+							break;
+						}
+					} else {
+						$sql.='WHEN '.$val2->case->field->field.' ';
+						switch($val2->case->op){
+						case 'IS NULL':
+						case 'IS NOT NULL':
+							$sql.=$val2->case->op;
+							break;
+						case 'BETWEEN':
+							$sql.=$val2->case->op.' '.$val2->case->value[0].' AND '.$val2->case->value[1];
+							break;
+						default:
+							$sql.=' '.$val2->case->op.' '.$val2->case->value;
+						}
+						$sql.=' THEN ';
+						if($val2->then->op=='=')
+							$sql.=$val2->then->value;
+						else
+							$sql.=$val2->then->field->field.' '.$val2->then->op.'('.$val2->then->value.')';
+					}
+					$sql.=' ';
+				}
+				$sql.='END ';
+
+			}else {
 				$sql.=' '.$key.'=?';
 				if($val==='true')
-				        $val=true;
-				 elseif($val==='false')
-				        $val=false;
-				
+					$val=true;
+				elseif($val==='false')
+					$val=false;
+
 				$types[]=array($val, $this->getPDOType($table, $key));
 			}
 			++$i;
@@ -233,7 +279,7 @@ class jsonSqlMysql extends jsonSqlBase {
 	 */
 	protected function getForeignId($value,$alias) {
 		$sql='SELECT id FROM '.$alias->foreign->table.' WHERE '.$alias->foreign->field.'=?';
-		
+
 		$sth=$this->dbh->prepare($sql);
 		$sth->bindParam(1, $value,$this->getPDOType($alias->foreign->table, $alias->foreign->field));
 		$sth->execute();
@@ -256,7 +302,7 @@ class jsonSqlMysql extends jsonSqlBase {
 	protected function getOrder($porder) {
 		$porder='ORDER BY';
 		$i=0;
-		
+
 		foreach($porder as $key=>$val) {
 			if($i!=0)
 				$order.=',';
@@ -283,10 +329,10 @@ class jsonSqlMysql extends jsonSqlBase {
 			}
 			$sql.=$key;
 			$values.='?';
-				if($val==='true')
-					$val=true;
-				elseif($val==='false')
-					$val=false;
+			if($val==='true')
+				$val=true;
+			elseif($val==='false')
+				$val=false;
 			$types[]=array($val, $this->getPDOType($table, $key));
 			++$i;
 		}
@@ -305,29 +351,29 @@ class jsonSqlMysql extends jsonSqlBase {
 		return $this->dbh->lastInsertId();
 	}
 	/**
-	* Erstellt den Join-Teil für die Select-Abfrage
-	* @param array $join Das Join-Array
-	* @return string der Join-Teil der Abfrage
-	*/
+	 * Erstellt den Join-Teil für die Select-Abfrage
+	 * @param array $join Das Join-Array
+	 * @return string der Join-Teil der Abfrage
+	 */
 	private function getJoinSelect($join){
-			$sql_join='';
-			$sql='';
-			foreach($join as $val) {
-				$tbl_alias='';
-				$val_table=$val->table;
-				$foreign_table=$val->foreign->table;
-				if(isset($val->alias)) {
-					$tbl_alias=' AS '.$val->alias.' ';
-					$foreign_table=$val->alias;
-					if(isset($val->via))
-						$val_table=$val->via;
-				}
-				if(!isset($val->foreign))
-					throw new sqlException('No foreign table for',1335287771,$val);
-				$sql.=' LEFT JOIN '.$val->foreign->table.$tbl_alias.
-					'  ON '.$val_table.'.'.$val->field.'='.$foreign_table.'.id';
+		$sql_join='';
+		$sql='';
+		foreach($join as $val) {
+			$tbl_alias='';
+			$val_table=$val->table;
+			$foreign_table=$val->foreign->table;
+			if(isset($val->alias)) {
+				$tbl_alias=' AS '.$val->alias.' ';
+				$foreign_table=$val->alias;
+				if(isset($val->via))
+					$val_table=$val->via;
 			}
-			return $sql;
+			if(!isset($val->foreign))
+				throw new sqlException('No foreign table for',1335287771,$val);
+			$sql.=' LEFT JOIN '.$val->foreign->table.$tbl_alias.
+				'  ON '.$val_table.'.'.$val->field.'='.$foreign_table.'.id';
+		}
+		return $sql;
 	}
 	/**
 	 * Create and execute the select-query
@@ -363,7 +409,7 @@ class jsonSqlMysql extends jsonSqlBase {
 							$select=' DISTINCT '.$this->db_aliases->{$field['alias']}->distinct;
 					}
 					$owhere='';
-					if($where && empty($count_where)) 
+					if($where && empty($count_where))
 						$owhere=' WHERE '.$where;
 					elseif($where && !empty($count_where))
 						$owhere=' AND '.$where;
@@ -381,14 +427,12 @@ class jsonSqlMysql extends jsonSqlBase {
 						$ordered_what[$field['position']]=' COUNT('.$table.'.'.$field['field'].') AS '.$field['alias'];
 					elseif(isset($field['type']) && $field['type']=='count_distinct'){
 						$ordered_what[$field['position']]=' COUNT( DISTINCT '.$table.'.'.$field['field'].') AS '.$field['alias'];
-						//var_dump($field);
-						//echo 'lala'; exit;
 					}else
 						$ordered_what[$field['position']]=' '.$table.'.'.$field['field'].' AS '.$field['alias'];
 				}
 			}
 		}
-		
+
 		ksort($ordered_what);
 		$sql.=implode(',', $ordered_what);
 		unset($ordered_what);
@@ -401,7 +445,14 @@ class jsonSqlMysql extends jsonSqlBase {
 			$sql.=' WHERE '.$where;
 		}
 		if($group){
-			$sql.=' GROUP BY '.$group['table'].'.'.$group['field'];
+			$sql.=' GROUP BY ';
+			$i=0;
+			foreach($group as $g) {
+				if($i!=0) $sql.=', ';
+				$sql.=$g['table'].'.'.$g['field'].' ';
+				++$i;
+			}
+
 		}
 		if($order) {
 			$sql.=' ORDER BY ';
@@ -412,9 +463,9 @@ class jsonSqlMysql extends jsonSqlBase {
 		}
 		if($limit) {
 			if(is_array($limit))
-			$sql.=' LIMIT '.intval($limit[0]).','.intval($limit[1]);
+				$sql.=' LIMIT '.intval($limit[0]).','.intval($limit[1]);
 			else
-			$sql.=' LIMIT '.intval($limit);
+				$sql.=' LIMIT '.intval($limit);
 		}
 		$stmt=$this->dbh->prepare($sql);
 		if($this->debug){
@@ -432,7 +483,7 @@ class jsonSqlMysql extends jsonSqlBase {
 	protected function execDelete($table, $where=null) {
 		$sql='DELETE FROM '.$table;
 		if($where)
-		$sql.=' WHERE '.$where;
+			$sql.=' WHERE '.$where;
 		$stmt=$this->dbh->prepare($sql);
 		if($this->debug){
 			$this->firephp->info($sql, 'SQL-Delete-Query');
